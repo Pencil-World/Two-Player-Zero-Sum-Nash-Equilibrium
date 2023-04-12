@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>a24dc978-1643-4682-8043-d396d1e83e90</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Two_Player_Zero_Sum_Nash_Equilibrium.py</StartupFile>
+    <StartupFile>Q Learning.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -25,7 +25,8 @@
       <Link>Board.py</Link>
     </Compile>
     <Compile Include="Connect4.py" />
-    <Compile Include="Two_Player_Zero_Sum_Nash_Equilibrium.py" />
+    <Compile Include="Deep Q Network.py" />
+    <Compile Include="Q Learning.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="log.txt" />
