@@ -13,7 +13,7 @@ def Experiment():
         lower, upper = max(0, gamma - Experiment.MoE), min(gamma + Experiment.MoE, 1)
         delta = (upper - lower) / 9
         test_stats = [[delta * elem + lower, 0] for elem in range(10)]
-        Experiment.MoE *= 0.999
+        Experiment.MoE *= 0.99
     gamma = test_stats[pi][0]
 Experiment.MoE = 0.5
 
@@ -54,10 +54,10 @@ epochs = 10
 R = [10, -10, 0]
 test_stats = [[0.5, 0]]
 HighScore = [1, 1]
-data_size = 1_000
+data_size = 10_000
 
-#open('The One.json', 'w').write(open('agent.json').read())
-#Test()
+open('The One.json', 'w').write(open('agent.json').read())
+Test()
 open('log.txt', 'w').close()
 
 state = TicTacToe()

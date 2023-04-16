@@ -22,7 +22,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Connect4.py" />
-    <Compile Include="Deep Q Network.py" />
     <Compile Include="Reinforcement Learning.py" />
     <Compile Include="TicTacToe.py" />
   </ItemGroup>
