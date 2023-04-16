@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>a24dc978-1643-4682-8043-d396d1e83e90</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Q Learning.py</StartupFile>
+    <StartupFile>Reinforcement Learning.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,16 +21,14 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\Tic Tac Toe\Tic Tac Toe\Board.py">
-      <Link>Board.py</Link>
-    </Compile>
     <Compile Include="Connect4.py" />
     <Compile Include="Deep Q Network.py" />
-    <Compile Include="Q Learning.py" />
+    <Compile Include="Reinforcement Learning.py" />
+    <Compile Include="TicTacToe.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="log.txt" />
-    <Content Include="model.json" />
+    <Content Include="agent.json" />
     <Content Include="The One.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
