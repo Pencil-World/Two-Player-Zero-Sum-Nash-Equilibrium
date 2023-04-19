@@ -2,6 +2,7 @@ from TicTacToe import TicTacToe
 # from Connect4 import Connect4
 import datetime
 import json
+from tensorflow import keras
 import numpy as np
 import random
 
@@ -9,20 +10,20 @@ def Experiment():
     global gamma, test_stats
     pi = i % 10
     if pi == 0:
-        gamma = sum([elem[0] * (1 - elem[1]) ** 2 for elem in test_stats]) / sum([(1 - elem[1]) ** 2 for elem in test_stats])
+        gamma = sum([elem[0] * elem[1] ** 3 for elem in test_stats]) / sum([elem[1] ** 3 for elem in test_stats])
         lower, upper = max(0, gamma - Experiment.MoE), min(gamma + Experiment.MoE, 1)
         delta = (upper - lower) / 9
         test_stats = [[delta * elem + lower, 0] for elem in range(10)]
-        Experiment.MoE *= 0.99
+        Experiment.MoE *= 0.9
     gamma = test_stats[pi][0]
 Experiment.MoE = 0.5
 
 def Conclude():
     global HighScore
     pi = i % 10
-    test_stats[pi][1] = CurrScore[1]
-    if CurrScore[1] < HighScore[1]:
-        HighScore = [gamma, CurrScore[1]]
+    test_stats[pi][1] = CurrScore[2]
+    if HighScore[1] < CurrScore[2]:
+        HighScore = [gamma, CurrScore[2]]
         JSON = dict(zip(QTable.keys(), [repr(elem.tolist()) for elem in QTable.values()])) # works for jagged arrays. includes commas
         json.dump(JSON, open('agent.json', 'w'), indent = 4)
 
@@ -35,14 +36,24 @@ def Test():
     state = TicTacToe()
     AgentTurn = True;
     for temp in range(1_000):
-        print('\n' + str(state))
-        action = int(input()) if not AgentTurn else (np.array([-100 if min(elem) == 100 else min(elem) for elem in QTable[repr(state)]]).argmax() if random.randrange(0, 100) < 95 and repr(state) in QTable else actions[random.randrange(0, actions.shape[0])])
+        if AgentTurn:
+            blind = True
+            if repr(state) in QTable:
+                values = QTable[repr(state)]
+                action = np.array([-100 if min(elem) == 100 else min(elem) for elem in values]).argmax()
+                blind = values[action].argmin() == 100
+            if blind:
+                print("unknown scenario")
+                action = actions[random.randrange(0, actions.shape[0])]
+        else:
+            action = int(input())
+
         state.move(action, AgentTurn + 1)
+        print('\n' + str(state))
 
         actions = state.generate()
         AgentTurn = not AgentTurn
         if not actions.shape[0] or state.progress == "RED":
-            print('\n' + str(state))
             state = TicTacToe()
             AgentTurn = True
 
@@ -52,9 +63,9 @@ episodes = 1_000
 epochs = 10
 
 R = [10, -10, 0]
-test_stats = [[0.5, 0]]
-HighScore = [1, 1]
-data_size = 10_000
+test_stats = [[0.5, 1]]
+HighScore = [0, 0]
+data_size = 1_000
 
 open('The One.json', 'w').write(open('agent.json').read())
 Test()
@@ -79,7 +90,7 @@ for i in range(data_size):
                     values = QTable.setdefault(repr(state), np.full([9, 9], 100, dtype = np.float32))
                     if random.randrange(0, 100) < epsilon * (100 // epochs):
                         action =  np.array([-100 if min(elem) == 100 else min(elem) for elem in values]).argmax()
-                        blind = values[action][0] == 100
+                        blind = values[action].argmin() == 100
                 elif random.randrange(0, 100) < epsilon * (100 // epochs):
                     values = values[action]
                     action = values.argmin()
