@@ -67,8 +67,8 @@ test_stats = [[0.5, 1]]
 HighScore = [0, 0]
 data_size = 1_000
 
-open('The One.json', 'w').write(open('agent.json').read())
-Test()
+#open('The One.json', 'w').write(open('agent.json').read())
+#Test()
 open('log.txt', 'w').close()
 
 state = TicTacToe()
@@ -91,15 +91,16 @@ for i in range(data_size):
                     if AgentTurn:
                         action =  np.array([-100 if min(elem) == 100 else min(elem) for elem in values]).argmax()
                         blind = values[action].argmin() == 100
-                    elif epsilon + 1 != epochs:
+                    elif epsilon + 1 == epochs:
+                        blind = False
+                        size = actions.shape[0] // 4
+                        action = actions[values.argpartition(size)[random.randint(0, size)]]
+                    else:
                         action = values.argmin()
                         blind = values[action] == 100
 
                 if blind:
-                    if not AgentTurn and (9 - actions.shape[0]) < np.count_nonzero(values == 100):
-                        action = actions[values[actions].argmax()]
-                    else:
-                        action = actions[random.randrange(0, actions.shape[0])]
+                    action = actions[values[actions].argmax() if not AgentTurn and (9 - actions.shape[0]) < (values == 100).sum() else random.randrange(0, actions.shape[0])]
 
                 history.append((action, values[action]))
                 state.move(action, AgentTurn + 1)
@@ -107,11 +108,11 @@ for i in range(data_size):
                 AgentTurn = not AgentTurn
 
             it = int(AgentTurn) if state.progress == "RED" else 2
-            reward = R[it]
             if epsilon + 1 == epochs:
                 CurrScore[it] += 1
                 state = TicTacToe()
             else:
+                reward = R[it]
                 prev = 0
                 for action, values in history[::-1]:
                     AgentTurn = not AgentTurn
