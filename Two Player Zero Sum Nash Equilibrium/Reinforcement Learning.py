@@ -10,8 +10,8 @@ def Experiment():
     global gamma, test_stats
     pi = i % 10
     if pi == 0:
-        gamma = sum([elem[0] * elem[1] ** 3 for elem in test_stats]) / sum([elem[1] ** 3 for elem in test_stats])
-        lower, upper = max(0, gamma - Experiment.MoE), min(gamma + Experiment.MoE, 1)
+        gamma = sum([elem[0] * elem[1] ** 5 for elem in test_stats]) / sum([elem[1] ** 5 for elem in test_stats])
+        lower, upper = max(0.001, gamma - Experiment.MoE), min(gamma + Experiment.MoE, 0.999)
         delta = (upper - lower) / 9
         test_stats = [[delta * elem + lower, 0] for elem in range(10)]
         Experiment.MoE *= 0.9
@@ -21,9 +21,9 @@ Experiment.MoE = 0.5
 def Conclude():
     global HighScore
     pi = i % 10
-    test_stats[pi][1] = CurrScore[2]
-    if HighScore[1] < CurrScore[2]:
-        HighScore = [gamma, CurrScore[2]]
+    test_stats[pi][1] = CurrScore[0]
+    if HighScore[1] < CurrScore[0]:
+        HighScore = [gamma, CurrScore[0]]
         JSON = dict(zip(QTable.keys(), [repr(elem.tolist()) for elem in QTable.values()])) # works for jagged arrays. includes commas
         json.dump(JSON, open('agent.json', 'w'), indent = 4)
 
@@ -67,8 +67,8 @@ test_stats = [[0.5, 1]]
 HighScore = [0, 0]
 data_size = 1_000
 
-#open('The One.json', 'w').write(open('agent.json').read())
-#Test()
+open('The One.json', 'w').write(open('agent.json').read())
+Test()
 open('log.txt', 'w').close()
 
 state = TicTacToe()
