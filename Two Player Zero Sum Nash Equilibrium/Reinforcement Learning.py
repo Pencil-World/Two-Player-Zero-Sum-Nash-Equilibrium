@@ -91,7 +91,7 @@ for i in range(data_size):
                     if AgentTurn:
                         action =  np.array([-100 if min(elem) == 100 else min(elem) for elem in values]).argmax()
                         blind = values[action].argmin() == 100
-                    else:
+                    elif epsilon + 1 != epochs:
                         action = values.argmin()
                         blind = values[action] == 100
 
@@ -110,16 +110,17 @@ for i in range(data_size):
             reward = R[it]
             if epsilon + 1 == epochs:
                 CurrScore[it] += 1
-
-            prev = 0
-            for action, values in history[::-1]:
-                AgentTurn = not AgentTurn
-                state.move(action, 0)
-                if AgentTurn:
-                    reward *= gamma
-                    values[prev] = reward if values[prev] == 100 else values[prev] + alpha * (reward - values[prev])
-                else:
-                    prev = action
+                state = TicTacToe()
+            else:
+                prev = 0
+                for action, values in history[::-1]:
+                    AgentTurn = not AgentTurn
+                    state.move(action, 0)
+                    if AgentTurn:
+                        reward *= gamma
+                        values[prev] = reward if values[prev] == 100 else values[prev] + alpha * (reward - values[prev])
+                    else:
+                        prev = action
 
     CurrScore /= episodes
     Conclude()
