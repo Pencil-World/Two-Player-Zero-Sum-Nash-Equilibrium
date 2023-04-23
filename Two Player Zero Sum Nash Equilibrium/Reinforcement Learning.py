@@ -59,16 +59,16 @@ def Test():
 
 alpha = 0.0001
 gamma = 0.5
-episodes = 1_000
-epochs = 10
+episodes = 1000
+epochs = 100
 
 R = [10, -10, 0]
 test_stats = [[0.5, 1]]
 HighScore = [0, 0]
 data_size = 1_000
 
-open('The One.json', 'w').write(open('agent.json').read())
-Test()
+#open('The One.json', 'w').write(open('agent.json').read())
+#Test()
 open('log.txt', 'w').close()
 
 state = TicTacToe()
@@ -86,18 +86,21 @@ for i in range(data_size):
 
             while actions.shape[0] and state.progress == "GREEN":
                 blind = True
-                if AgentTurn:
-                    values = QTable.setdefault(repr(state), np.full([9, 9], 100, dtype = np.float32))
-                    if random.randrange(0, 100) < epsilon * (100 // epochs):
+                values = QTable.setdefault(repr(state), np.full([9, 9], 100, dtype = np.float32)) if AgentTurn else values[action]
+                if random.randrange(0, 100) < epsilon * (100 // epochs):
+                    if AgentTurn:
                         action =  np.array([-100 if min(elem) == 100 else min(elem) for elem in values]).argmax()
                         blind = values[action].argmin() == 100
-                elif random.randrange(0, 100) < epsilon * (100 // epochs):
-                    values = values[action]
-                    action = values.argmin()
-                    blind = values[action] == 100
+                    else:
+                        action = values.argmin()
+                        blind = values[action] == 100
 
                 if blind:
-                    action = actions[random.randrange(0, actions.shape[0])]
+                    if not AgentTurn and (9 - actions.shape[0]) < np.count_nonzero(values == 100):
+                        action = actions[values[actions].argmax()]
+                    else:
+                        action = actions[random.randrange(0, actions.shape[0])]
+
                 history.append((action, values[action]))
                 state.move(action, AgentTurn + 1)
                 actions = state.generate()
