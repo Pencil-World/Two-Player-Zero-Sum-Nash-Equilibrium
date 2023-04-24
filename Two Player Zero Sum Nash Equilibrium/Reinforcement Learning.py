@@ -78,7 +78,7 @@ for i in range(data_size):
     Experiment()
     CurrScore = np.zeros([3])
     QTable = dict()
-    for epsilon in range(epochs):
+    for epsilon in range(1, epochs + 1):
         for temp in range(episodes):
             history = []
             actions = state.generate()
@@ -92,15 +92,18 @@ for i in range(data_size):
                         action =  np.array([-100 if min(elem) == 100 else min(elem) for elem in values]).argmax()
                         blind = values[action].argmin() == 100
                     elif epsilon + 1 == epochs:
+                        # create log of best models. test it by playing against those models
                         blind = False
-                        size = actions.shape[0] // 4
-                        action = actions[values.argpartition(size)[random.randint(0, size)]]
+                        action = actions[random.randrange(0, actions.shape[0])]
                     else:
                         action = values.argmin()
                         blind = values[action] == 100
 
                 if blind:
-                    action = actions[values[actions].argmax() if not AgentTurn and (9 - actions.shape[0]) < (values == 100).sum() else random.randrange(0, actions.shape[0])]
+                    if not AgentTurn and (9 - actions.shape[0]) < (values == 100).sum():
+                        action = actions[values[actions].argmax()]
+                    else:
+                        action = actions[random.randrange(0, actions.shape[0])]
 
                 history.append((action, values[action]))
                 state.move(action, AgentTurn + 1)
