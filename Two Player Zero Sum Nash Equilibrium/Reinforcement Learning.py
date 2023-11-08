@@ -1,10 +1,11 @@
 from TicTacToe import TicTacToe
 # from Connect4 import Connect4
 import datetime
+from collections import deque
 import json
-from tensorflow import keras
 import numpy as np
 import random
+from tensorflow import keras
 
 """
 
@@ -27,9 +28,18 @@ Experiment.MoE = 0.5
 def Conclude():
     global BestScore
     pi = epoch_count % 10 if len(test_stats) > 1 else 0
-    test_stats[pi][1] = 1.25 * CurrScore[0] + CurrScore[1]
+    test_stats[pi][1] = ScoreTicTacToe()
     if BestScore[1] < test_stats[pi][1]:
         BestScore = [gamma, test_stats[pi][1]]
+        QTable = dict
+        queue = deque(root)
+
+        while len(queue) > 0:
+            item = queue.popleft()
+            for state, value in item.children:
+                QTable[repr(state)] = value
+                queue.append(state)
+
         JSON = dict(zip(QTable.keys(), [repr(elem.tolist()) for elem in QTable.values()])) # works for jagged arrays. includes commas
         json.dump(JSON, open('agent.json', 'w'), indent = 4)
 
@@ -46,6 +56,7 @@ def other_agent_action(depth):
     return other_agent_action(depth - 1)
 
 def evaluate_the_policy():
+    PlayerXTurn = True;
     actions = state.actions
     while actions.shape[0] and state.progress == "GREEN":
         blind = True
@@ -74,7 +85,21 @@ def evaluate_the_policy():
         PlayerXTurn = not PlayerXTurn
 
 def improve_the_policy():
-    pass
+    it = int(PlayerXTurn) if state.progress == "RED" else 2
+    if epsilon + 1 == epochs:
+        CurrScore[it] += 1
+        state = TicTacToe()
+    else:
+        reward = R[it]
+        prev = 0
+        for action, values in history[::-1]:
+            PlayerXTurn = not PlayerXTurn
+            state.move(action, 0)
+            if PlayerXTurn:
+                reward *= gamma
+                values[prev] = reward if values[prev] == 100 else values[prev] + alpha * (reward - values[prev])
+            else:
+                prev = action
 
 #def Test():
 #    print("\nTest")
@@ -107,6 +132,12 @@ def improve_the_policy():
 #            state = TicTacToe()
 #            PlayerXTurn = True
 
+def ScoreTicTacToe():
+    return 1.25 * (CurrScore[0] - CurrScore[2]) + CurrScore[1]
+
+def ScoreConnect4():
+    return 2 * CurrScore[0] + CurrScore[1]
+
 #open('The One.json', 'w').write(open('agent.json').read())
 #Test()
 open('log.txt', 'w').close()
@@ -117,41 +148,21 @@ depth = 2 # prediction depth. int for how many moves in the future the model con
 episodes = 1000 # training time. model spends more time learning at higher episodes and spends less time training at lower episodes
 epochs = 100 # evolutionary time. how many models and time spent exploring those models
 gamma = 0.5 # decay rate. model considers future actions more at higher gamma and considers future actions less at lower gamma
-state = TicTacToe()
-test_stats = [[0.5, 1]]
+root = state = TicTacToe()
+test_stats = [[gamma, 1]]
 
 BestScore = [0, 0]
-
 log(f"starting program at {datetime.datetime.now()}")
 for epoch_count in range(epochs):
     log(f"new model - starting epoch {epoch_count} at {datetime.datetime.now()}\n")
     #Experiment()
 
     CurrScore = np.zeros([3])
-    QTable = dict()
-    
     episode_count = 0
-    while episode_count := episode_count + 1 < episodes:
-        history = []
-        PlayerXTurn = True;
-
-        # mae this "learning" section a function as well
-        it = int(PlayerXTurn) if state.progress == "RED" else 2
-        if epsilon + 1 == epochs:
-            CurrScore[it] += 1
-            state = TicTacToe()
-        else:
-            reward = R[it]
-            prev = 0
-            for action, values in history[::-1]:
-                PlayerXTurn = not PlayerXTurn
-                state.move(action, 0)
-                if PlayerXTurn:
-                    reward *= gamma
-                    values[prev] = reward if values[prev] == 100 else values[prev] + alpha * (reward - values[prev])
-                else:
-                    prev = action
+    while (episode_count := episode_count + 1) <= episodes:
+        history = evaluate_the_policy()
+        improve_the_policy(history)
 
         CurrScore /= episodes
         Conclude()
-        log(f"{BestScore[0]:.3f} high score: {BestScore[1]:.3f}\t\t{gamma:.3f} win rate: {CurrScore[0]:.3f} loss rate: {CurrScore[1]:.3f} tie rate: {CurrScore[2]:.3f}\ttime: {datetime.datetime.now()}\n")
+        log(f"{BestScore[0]:.3f} high score: {BestScore[1]:.3f}\t\t{gamma:.3f} win rate: {CurrScore[0]:.3f} tie rate: {CurrScore[2]:.3f} loss rate: {CurrScore[1]:.3f}\ttime: {datetime.datetime.now()}\n")
