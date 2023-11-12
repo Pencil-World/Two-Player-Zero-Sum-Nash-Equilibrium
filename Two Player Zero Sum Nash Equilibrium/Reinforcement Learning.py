@@ -32,7 +32,7 @@ def Conclude():
     if BestScore[1] < test_stats[pi][1]:
         BestScore = [gamma, test_stats[pi][1]]
         QTable = dict
-        queue = deque(root)
+        queue = deque(state)
 
         while len(queue) > 0:
             item = queue.popleft()
@@ -47,59 +47,62 @@ def log(text):
     with open('log.txt', 'a') as log:
         log.write(text + "\n")
 
-def self_agent_action(begin, end):
-    if begin == end:
-        return
-    return max(self_agent_action(begin, end)) if begin else min(self_agent_action(begin, end))
 
-def other_agent_action(depth):
-    return other_agent_action(depth - 1)
+# use actions, not children, because there are invalid thingymabobs
+def self_agent_action(state, _steps):
+    if not _steps:
+        return state.children
+    
+    max_value_action = None
+    for (action, (child, junk)) in state.children:
+        value = other_agent_action(child, _steps - 1)[1]
+        if not max_value_action or value > max_value_action[1]:
+            max_value_action = (action, value)
+    return max_value_action
+
+def other_agent_action(state, _steps):
+    if not _steps:
+        return state.children
+    
+    min_value_action = None
+    for (action, (child, junk)) in state.children:
+        value = self_agent_action(child, _steps - 1)[1]
+        if not min_value_action or value < min_value_action[1]:
+            min_value_action = (action, value)
+    return min_value_action
 
 def evaluate_the_policy():
-    PlayerXTurn = True;
+    global CurrScore
+    history = []
     actions = state.actions
-    while actions.shape[0] and state.progress == "GREEN":
-        blind = True
-        values = QTable.setdefault(repr(state), np.full([9, 9], 100, dtype = np.float32)) if PlayerXTurn else values[action]
-        epsilon = (epsilon / episode_count) * 100
-        if random.randrange(0, 100) < epsilon:
-            if PlayerXTurn:
-                action =  np.array([-100 if min(elem) == 100 else min(elem) for elem in values]).argmax()
-                blind = values[action].argmin() == 100
-                # when less than halfway through. random actions will always choose an unexplored option
-                # when over halfway through, weight the actions appropiately. maybe not weight the actions and do a standard random
-                # the opponent will play in the same function
-            else:
-                action = values.argmin()
-                blind = values[action] == 100
+    
+    while actions.shape[0]:
+        epsilon = episode_count / episodes
+        if random.random < epsilon:
+            action = (self_agent_action(state, steps) if len(history) % 2 else other_agent_action(state, steps))[0]
+        else:
+            if epsilon < 0.5:
+                temp = [elem for elem in actions if state.children[elem][0] == None]
+                actions = state.actions if len(temp) == 0 else temp
+            action = random.choice(actions)
 
-        if blind:
-            if not PlayerXTurn and (9 - actions.shape[0]) < (values == 100).sum():
-                action = actions[values[actions].argmax()]
-            else:
-                action = actions[random.randrange(0, actions.shape[0])]
-
-        history.append((action, values[action]))
-        state.move(action, PlayerXTurn + 1)
-        actions = state.generate()
-        PlayerXTurn = not PlayerXTurn
+        history.append((state, action))
+        state.move(action)
+    
+    return history
 
 def improve_the_policy():
-    it = int(PlayerXTurn) if state.progress == "RED" else 2
-    if epsilon + 1 == epochs:
-        CurrScore[it] += 1
-        state = TicTacToe()
+    global CurrScore
+    if len(history) < 9 or state.reward:
+        CurrScore[1 - np.sign(state.reward)] += 1
     else:
-        reward = R[it]
-        prev = 0
-        for action, values in history[::-1]:
-            PlayerXTurn = not PlayerXTurn
-            state.move(action, 0)
-            if PlayerXTurn:
-                reward *= gamma
-                values[prev] = reward if values[prev] == 100 else values[prev] + alpha * (reward - values[prev])
-            else:
-                prev = action
+        CurrScore[1] += 1
+
+    reward = state.reward
+    for state, action in history[::-1]:
+        reward *= gamma
+        state.children[action][1] = reward
+        # values[prev] = reward if values[prev] == 100 else values[prev] + alpha * (reward - values[prev])
 
 #def Test():
 #    print("\nTest")
@@ -144,11 +147,11 @@ open('log.txt', 'w').close()
 
 # Variables are in alphabetical order
 alpha = 0.001 # learning rate. model learns faster at higher alpha and learns slower at lower alpha
-depth = 2 # prediction depth. int for how many moves in the future the model considers
+steps = 2 # prediction steps. int for how many moves in the future the model considers
 episodes = 1000 # training time. model spends more time learning at higher episodes and spends less time training at lower episodes
 epochs = 100 # evolutionary time. how many models and time spent exploring those models
 gamma = 0.5 # decay rate. model considers future actions more at higher gamma and considers future actions less at lower gamma
-root = state = TicTacToe()
+state = TicTacToe()
 test_stats = [[gamma, 1]]
 
 BestScore = [0, 0]
@@ -165,4 +168,4 @@ for epoch_count in range(epochs):
 
         CurrScore /= episodes
         Conclude()
-        log(f"{BestScore[0]:.3f} high score: {BestScore[1]:.3f}\t\t{gamma:.3f} win rate: {CurrScore[0]:.3f} tie rate: {CurrScore[2]:.3f} loss rate: {CurrScore[1]:.3f}\ttime: {datetime.datetime.now()}\n")
+        log(f"{BestScore[0]:.3f} high score: {BestScore[1]:.3f}\t\t{gamma:.3f} win rate: {CurrScore[0]:.3f} tie rate: {CurrScore[1]:.3f} loss rate: {CurrScore[2]:.3f}\ttime: {datetime.datetime.now()}\n")

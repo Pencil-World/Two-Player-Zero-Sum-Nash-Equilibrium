@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 import numpy as np
 
 class TicTacToe():
@@ -8,10 +7,7 @@ class TicTacToe():
             for i, elem in enumerate(board):
                 self.board[i] = elem
 
-        self.children = np.empty([9, 2], dtype = object)#contains children and their returns
-        for i, elem in enumerate(self.board):
-            self.children[i] = [None if not elem else "INVALID", 0]
-
+        self.children = { i: [None, 0] for i, elem in enumerate(self.board) if not elem }
         self.reward = self.__reward
         self.actions = self.__actions
 
@@ -39,9 +35,12 @@ class TicTacToe():
         reward = 0
         for (coord, change) in zip([0, 0, 0, 1, 2, 2, 3, 6], [1, 3, 4, 3, 2, 3, 1, 1]):
             temp = sum(tokenizer[self.board[[coord, coord + change, coord + change + change]]])
+            if temp == 9 or temp == 27:
+                self.children = {}
+                return parser[temp]
             reward += parser.get(temp, 0)
         return reward
 
     @property
     def __actions(self):
-        return [i for i, elem in enumerate(self.children[:,0]) if elem != "INVALID"]
+        return self.children.keys()
