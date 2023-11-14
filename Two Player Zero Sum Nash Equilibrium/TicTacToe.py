@@ -27,7 +27,7 @@ class TicTacToe():
 
     def move(self, action):
         if self.children[action][0] != None:
-            return self.board[action]
+            return self.children[action][0]
         temp = self.children[action][0] = TicTacToe(self.board)
         temp.update(action)
         return temp

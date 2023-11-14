@@ -7,6 +7,8 @@ import numpy as np
 import random
 from tensorflow import keras
 
+# IMPORTANT!!! NO EXPECTED RETURN NOR REWARD SHOULD BE GREATER THAN 100_000 EVER!!! 100_000 IS THE SAFE NUMBER!!!
+
 """
 
 """
@@ -31,44 +33,46 @@ def Conclude():
     test_stats[pi][1] = ScoreTicTacToe()
     if BestScore[1] < test_stats[pi][1]:
         BestScore = [gamma, test_stats[pi][1]]
-        QTable = dict
-        queue = deque(state)
+        QTable = dict()
+        queue = deque([state])
 
         while len(queue) > 0:
             item = queue.popleft()
-            for state, value in item.children:
-                QTable[repr(state)] = value
-                queue.append(state)
+            lst = [100_000] * 9
+            for action, (trace, value) in item.children.items():
+                if trace:
+                    queue.append(trace)
+                lst[action] = value
+            QTable[repr(item)] = repr(lst)
 
-        JSON = dict(zip(QTable.keys(), [repr(elem.tolist()) for elem in QTable.values()])) # works for jagged arrays. includes commas
+        JSON = dict(zip(QTable.keys(), QTable.values())) # works for jagged arrays. includes commas
+        # JSON = dict(zip(QTable.keys(), [repr(elem) for elem in QTable.values()])) # works for jagged arrays. includes commas
         json.dump(JSON, open('agent.json', 'w'), indent = 4)
 
 def log(text):
     with open('log.txt', 'a') as log:
         log.write(text + "\n")
 
-
-# use actions, not children, because there are invalid thingymabobs
 def self_agent_action(state, _steps):
     if not _steps:
-        return max(state.children.values(), key = lambda k: (k[1] if k[0] else -100_000))
+        return max(state.children.values(), key = lambda k: (k[1] if k[0] != None else -100_000))
     
     max_value_action = None
     for action, (child, junk) in state.children.items():
         if child:
-            value = other_agent_action(child, _steps - 1)[1]
+            value = other_agent_action(child, _steps - 1)[1] if child.children else child.reward
             if not max_value_action or value > max_value_action[1]:
                 max_value_action = (action, value)
     return max_value_action
 
 def other_agent_action(state, _steps):
     if not _steps:
-        return min(state.children.values(), key = lambda k: (k[1] if k[0] else 100_000))
+        return min(state.children.values(), key = lambda k: (k[1] if k[0] != None else 100_000))
     
     min_value_action = None
     for action, (child, junk) in state.children.items():
         if child:
-            value = self_agent_action(child, _steps - 1)[1]
+            value = self_agent_action(child, _steps - 1)[1] if child.children else child.reward
             if not min_value_action or value < min_value_action[1]:
                 min_value_action = (action, value)
     return min_value_action
@@ -89,10 +93,7 @@ def evaluate_the_policy():
             action = random.choice(actions)
 
         history.append((state, action))
-        blah = state.move(action)
-        if not isinstance(blah, TicTacToe):
-            print()
-        state = blah
+        state = state.move(action)
         actions = state.actions
     
     return history
@@ -111,46 +112,56 @@ def improve_the_policy(history):
         trace.children[action][1] = value_past + alpha * (value_new - value_past) if trace.children[action][1] else value_new
     state = trace
 
-#def Test():
-#    print("\nTest")
-#    QTable = json.load(open('The One.json', 'r'))
-#    for key, val in QTable.items():
-#        QTable[key] = np.array(json.loads(val))
-
-#    state = TicTacToe()
-#    PlayerXTurn = True;
+def Test():
+    print("Test")
+    QTable = json.load(open('The One.json', 'r'))
     
-#    for temp in range(1_000):
-#        if PlayerXTurn:
-#            blind = True
-#            if repr(state) in QTable:
-#                values = QTable[repr(state)]
-#                action = np.array([-100 if min(elem) == 100 else min(elem) for elem in values]).argmax()
-#                blind = values[action].argmin() == 100
-#            if blind:
-#                print("unknown scenario")
-#                action = actions[random.randrange(0, actions.shape[0])]
-#        else:
-#            action = int(input())
+    root = TicTacToe()
+    queue = deque([root])
+    while len(queue) > 0:
+        item = queue.popleft()
+        values = list(map(int, QTable.get(repr(item), [100_000] * 9)))
+        for action in item.actions:
+            if values[action] < 100_000:
+                trace = item.move(action)
+                item.children[action] = [trace, values[action]]
+                queue.append(trace)
 
-#        state.move(action, PlayerXTurn + 1)
-#        print('\n' + str(state))
+    for key, val in QTable.items():
+        while repr(state) != key:
+            for action, (trace, value) in state.children.items():
+                queue.append(trace)
+                state.children[action][1] = value
+            state = queue.popleft()
+            
+        QTable[key] = [None if elem == 100_000 else elem for elem in np.array(json.loads(val))]
+        
+    for temp in range(1_000):
+        state = root
+        isAgentX = AgentTurn = round(random.random())
+        while state.actions:
+            print('\n' + str(state))
+            actions = state.actions
+            if AgentTurn:
+                if repr(state) in QTable:
+                    action = (self_agent_action(state, steps) if isAgentX else other_agent_action(state, steps))[0]
+                else:
+                    print("Unknown scenario")
+                    action = actions[random.randrange(0, len(actions))]
+            else:
+                action = -1
+                while not action in actions:
+                    action = int(input("Input your turn: "))
 
-#        actions = state.generate()
-#        PlayerXTurn = not PlayerXTurn
-#        if not actions.shape[0] or state.progress == "RED":
-#            state = TicTacToe()
-#            PlayerXTurn = True
+            AgentTurn = not AgentTurn
+            state = state.move(action)
+        print('\n' + str(state))
 
 def ScoreTicTacToe():
     return 1.25 * (CurrScore[0] - CurrScore[2]) + CurrScore[1]
 
 def ScoreConnect4():
     return 2 * CurrScore[0] + CurrScore[1]
-
-#open('The One.json', 'w').write(open('agent.json').read())
-#Test()
-open('log.txt', 'w').close()
 
 # Variables are in alphabetical order
 alpha = 0.001 # learning rate. model learns faster at higher alpha and learns slower at lower alpha
@@ -161,10 +172,14 @@ gamma = 0.5 # decay rate. model considers future actions more at higher gamma an
 state = TicTacToe()
 test_stats = [[gamma, 1]]
 
+# open('The One.json', 'w').write(open('agent.json').read())
+Test()
+open('log.txt', 'w').close()
+
 BestScore = [0, 0]
 log(f"starting program at {datetime.datetime.now()}")
 for epoch_count in range(epochs):
-    log(f"new model - starting epoch {epoch_count} at {datetime.datetime.now()}\n")
+    log(f"new model - starting epoch {epoch_count} at {datetime.datetime.now()}")
     #Experiment()
 
     CurrScore = np.zeros([3])
@@ -175,4 +190,4 @@ for epoch_count in range(epochs):
 
     CurrScore /= episodes
     Conclude()
-    log(f"{BestScore[0]:.3f} high score: {BestScore[1]:.3f}\t\t{gamma:.3f} win rate: {CurrScore[0]:.3f} tie rate: {CurrScore[1]:.3f} loss rate: {CurrScore[2]:.3f}\ttime: {datetime.datetime.now()}\n")
+    log(f"{BestScore[0]:.3f} high score: {BestScore[1]:.3f}\t\tgamma: {gamma:.3f} win rate: {CurrScore[0]:.3f} tie rate: {CurrScore[1]:.3f} loss rate: {CurrScore[2]:.3f}\ttime: {datetime.datetime.now()}")

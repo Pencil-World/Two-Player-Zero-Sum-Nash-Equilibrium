@@ -1,3 +1,8 @@
-starting program at 2023-11-12 23:44:45.352574
-new model - starting epoch 0 at 2023-11-12 23:44:45.352574
-
+starting program at 2023-11-14 14:34:24.023042
+new model - starting epoch 0 at 2023-11-14 14:34:24.024030
+0.500 high score: 0.450		gamma: 0.500 win rate: 0.435 tie rate: 0.272 loss rate: 0.293	time: 2023-11-14 14:34:25.558965
+new model - starting epoch 1 at 2023-11-14 14:34:25.559972
+0.500 high score: 0.538		gamma: 0.500 win rate: 0.448 tie rate: 0.297 loss rate: 0.255	time: 2023-11-14 14:34:27.387124
+new model - starting epoch 2 at 2023-11-14 14:34:27.388127
+0.500 high score: 0.575		gamma: 0.500 win rate: 0.479 tie rate: 0.279 loss rate: 0.242	time: 2023-11-14 14:34:29.544361
+new model - starting epoch 3 at 2023-11-14 14:34:29.544361
