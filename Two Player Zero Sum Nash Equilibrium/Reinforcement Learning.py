@@ -7,9 +7,10 @@ import numpy as np
 import random
 from tensorflow import keras
 
-# IMPORTANT!!! NO EXPECTED RETURN NOR REWARD SHOULD BE GREATER THAN 100_000 EVER!!! 100_000 IS THE SAFE NUMBER!!!
+# ***IMPORTANT*** NO EXPECTED RETURN NOR REWARD SHOULD BE GREATER THAN 100_000 EVER! 100_000 IS THE SAFE NUMBER!
 
 """
+Please change the multiplier of Experiment.MoE to control the convergence rate of gamma. 
 
 """
 def Experiment():
@@ -26,6 +27,7 @@ Experiment.MoE = 0.5
 
 """
 Please change the score function depending on the scenario of the situation used. 
+
 """
 def Conclude():
     global BestScore
@@ -46,7 +48,6 @@ def Conclude():
             QTable[repr(item)] = repr(lst)
 
         JSON = dict(zip(QTable.keys(), QTable.values())) # works for jagged arrays. includes commas
-        # JSON = dict(zip(QTable.keys(), [repr(elem) for elem in QTable.values()])) # works for jagged arrays. includes commas
         json.dump(JSON, open('agent.json', 'w'), indent = 4)
 
 def log(text):
@@ -81,7 +82,7 @@ def evaluate_the_policy():
     global state
     history = []
     actions = state.actions
-    
+
     while len(actions):
         epsilon = episode_count / episodes
         temp = [elem for elem in actions if state.children[elem][0] == None]
@@ -120,21 +121,12 @@ def Test():
     queue = deque([root])
     while len(queue) > 0:
         item = queue.popleft()
-        values = list(map(int, QTable.get(repr(item), [100_000] * 9)))
+        values = json.loads(QTable.get(repr(item), "[100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000]"))
         for action in item.actions:
             if values[action] < 100_000:
                 trace = item.move(action)
                 item.children[action] = [trace, values[action]]
                 queue.append(trace)
-
-    for key, val in QTable.items():
-        while repr(state) != key:
-            for action, (trace, value) in state.children.items():
-                queue.append(trace)
-                state.children[action][1] = value
-            state = queue.popleft()
-            
-        QTable[key] = [None if elem == 100_000 else elem for elem in np.array(json.loads(val))]
         
     for temp in range(1_000):
         state = root
@@ -143,7 +135,7 @@ def Test():
             print('\n' + str(state))
             actions = state.actions
             if AgentTurn:
-                if repr(state) in QTable:
+                if len([elem for elem in actions if state.children[elem][0] == None]) < len(state.children):
                     action = (self_agent_action(state, steps) if isAgentX else other_agent_action(state, steps))[0]
                 else:
                     print("Unknown scenario")
@@ -151,7 +143,7 @@ def Test():
             else:
                 action = -1
                 while not action in actions:
-                    action = int(input("Input your turn: "))
+                    action = int(input("Input your turn: ")) - 1
 
             AgentTurn = not AgentTurn
             state = state.move(action)
@@ -166,22 +158,20 @@ def ScoreConnect4():
 # Variables are in alphabetical order
 alpha = 0.001 # learning rate. model learns faster at higher alpha and learns slower at lower alpha
 steps = 1 # prediction steps. int for how many moves in the future the model considers
-episodes = 1000 # training time. model spends more time learning at higher episodes and spends less time training at lower episodes
-epochs = 100 # evolutionary time. how many models and time spent exploring those models
+episodes = 5_000 # training time. model spends more time learning at higher episodes and spends less time training at lower episodes
+epochs = 1_000 # evolutionary time. how many models and time spent exploring those models
 gamma = 0.5 # decay rate. model considers future actions more at higher gamma and considers future actions less at lower gamma
 state = TicTacToe()
 test_stats = [[gamma, 1]]
 
 # open('The One.json', 'w').write(open('agent.json').read())
-Test()
+# Test()
 open('log.txt', 'w').close()
 
 BestScore = [0, 0]
 log(f"starting program at {datetime.datetime.now()}")
 for epoch_count in range(epochs):
-    log(f"new model - starting epoch {epoch_count} at {datetime.datetime.now()}")
-    #Experiment()
-
+    Experiment()
     CurrScore = np.zeros([3])
     episode_count = 0
     while (episode_count := episode_count + 1) <= episodes:

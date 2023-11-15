@@ -20,7 +20,7 @@ class TicTacToe():
 
     def update(self, action = None):
         if action != None:
-            self.board[action] = sum(self.board) % 3 + 1
+            self.board[action] = 2 - len(self.actions) % 2
         self.children = { i: [None, 0] for i, elem in enumerate(self.board) if not elem }
         self.reward = self.__reward
         self.actions = self.__actions
@@ -35,7 +35,7 @@ class TicTacToe():
     @property
     def __reward(self):
         tokenizer = np.array([1, 3, 9]) # tokenizes the elements " ", "X", and "O" into numerical forms
-        parser = { 7: 3, 9: 9, 19: -3, 27: -9 } # converts the tokens into rewards throughout the board
+        parser = { 7: 3, 9: 13, 19: -3, 27: -13 } # converts the tokens into rewards throughout the board
         reward = 0
         for (coord, change) in zip([0, 0, 0, 1, 2, 2, 3, 6], [1, 3, 4, 3, 2, 3, 1, 1]):
             temp = sum(tokenizer[self.board[[coord, coord + change, coord + change + change]]])

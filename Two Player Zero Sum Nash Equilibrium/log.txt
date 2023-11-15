@@ -1,8 +1,166 @@
-starting program at 2023-11-14 14:34:24.023042
-new model - starting epoch 0 at 2023-11-14 14:34:24.024030
-0.500 high score: 0.450		gamma: 0.500 win rate: 0.435 tie rate: 0.272 loss rate: 0.293	time: 2023-11-14 14:34:25.558965
-new model - starting epoch 1 at 2023-11-14 14:34:25.559972
-0.500 high score: 0.538		gamma: 0.500 win rate: 0.448 tie rate: 0.297 loss rate: 0.255	time: 2023-11-14 14:34:27.387124
-new model - starting epoch 2 at 2023-11-14 14:34:27.388127
-0.500 high score: 0.575		gamma: 0.500 win rate: 0.479 tie rate: 0.279 loss rate: 0.242	time: 2023-11-14 14:34:29.544361
-new model - starting epoch 3 at 2023-11-14 14:34:29.544361
+starting program at 2023-11-14 15:32:55.276863
+new model - starting epoch 0 at 2023-11-14 15:32:55.278096
+0.001 high score: 0.633		gamma: 0.001 win rate: 0.471 tie rate: 0.314 loss rate: 0.216	time: 2023-11-14 15:33:01.781497
+new model - starting epoch 1 at 2023-11-14 15:33:01.781497
+0.112 high score: 0.701		gamma: 0.112 win rate: 0.618 tie rate: 0.180 loss rate: 0.202	time: 2023-11-14 15:33:09.685659
+new model - starting epoch 2 at 2023-11-14 15:33:09.686663
+0.112 high score: 0.701		gamma: 0.223 win rate: 0.560 tie rate: 0.214 loss rate: 0.226	time: 2023-11-14 15:33:14.376512
+new model - starting epoch 3 at 2023-11-14 15:33:14.377501
+0.112 high score: 0.701		gamma: 0.334 win rate: 0.512 tie rate: 0.274 loss rate: 0.213	time: 2023-11-14 15:33:18.875722
+new model - starting epoch 4 at 2023-11-14 15:33:18.875722
+0.112 high score: 0.701		gamma: 0.445 win rate: 0.583 tie rate: 0.219 loss rate: 0.198	time: 2023-11-14 15:33:23.483351
+new model - starting epoch 5 at 2023-11-14 15:33:23.484352
+0.112 high score: 0.701		gamma: 0.555 win rate: 0.503 tie rate: 0.288 loss rate: 0.209	time: 2023-11-14 15:33:27.807389
+new model - starting epoch 6 at 2023-11-14 15:33:27.807389
+0.112 high score: 0.701		gamma: 0.666 win rate: 0.509 tie rate: 0.283 loss rate: 0.208	time: 2023-11-14 15:33:32.060386
+new model - starting epoch 7 at 2023-11-14 15:33:32.060386
+0.777 high score: 0.710		gamma: 0.777 win rate: 0.530 tie rate: 0.282 loss rate: 0.188	time: 2023-11-14 15:33:44.840812
+new model - starting epoch 8 at 2023-11-14 15:33:44.840812
+0.888 high score: 0.714		gamma: 0.888 win rate: 0.499 tie rate: 0.318 loss rate: 0.183	time: 2023-11-14 15:33:58.787557
+new model - starting epoch 9 at 2023-11-14 15:33:58.788695
+0.999 high score: 0.729		gamma: 0.999 win rate: 0.537 tie rate: 0.283 loss rate: 0.180	time: 2023-11-14 15:34:13.026403
+new model - starting epoch 10 at 2023-11-14 15:34:13.026403
+0.999 high score: 0.729		gamma: 0.104 win rate: 0.492 tie rate: 0.322 loss rate: 0.186	time: 2023-11-14 15:34:17.140519
+new model - starting epoch 11 at 2023-11-14 15:34:17.140519
+0.999 high score: 0.729		gamma: 0.204 win rate: 0.500 tie rate: 0.322 loss rate: 0.177	time: 2023-11-14 15:34:21.157296
+new model - starting epoch 12 at 2023-11-14 15:34:21.157296
+0.303 high score: 0.740		gamma: 0.303 win rate: 0.598 tie rate: 0.220 loss rate: 0.182	time: 2023-11-14 15:34:37.075607
+new model - starting epoch 13 at 2023-11-14 15:34:37.075607
+0.402 high score: 0.766		gamma: 0.402 win rate: 0.540 tie rate: 0.296 loss rate: 0.164	time: 2023-11-14 15:34:53.617901
+new model - starting epoch 14 at 2023-11-14 15:34:53.618888
+0.402 high score: 0.766		gamma: 0.502 win rate: 0.502 tie rate: 0.323 loss rate: 0.175	time: 2023-11-14 15:34:57.535169
+new model - starting epoch 15 at 2023-11-14 15:34:57.536172
+0.402 high score: 0.766		gamma: 0.601 win rate: 0.494 tie rate: 0.336 loss rate: 0.170	time: 2023-11-14 15:35:01.847402
+new model - starting epoch 16 at 2023-11-14 15:35:01.848404
+0.402 high score: 0.766		gamma: 0.701 win rate: 0.493 tie rate: 0.335 loss rate: 0.172	time: 2023-11-14 15:35:05.674201
+new model - starting epoch 17 at 2023-11-14 15:35:05.674201
+0.402 high score: 0.766		gamma: 0.800 win rate: 0.491 tie rate: 0.329 loss rate: 0.180	time: 2023-11-14 15:35:09.457293
+new model - starting epoch 18 at 2023-11-14 15:35:09.457293
+0.402 high score: 0.766		gamma: 0.900 win rate: 0.525 tie rate: 0.301 loss rate: 0.175	time: 2023-11-14 15:35:13.304090
+new model - starting epoch 19 at 2023-11-14 15:35:13.305092
+0.402 high score: 0.766		gamma: 0.999 win rate: 0.524 tie rate: 0.310 loss rate: 0.166	time: 2023-11-14 15:35:17.141415
+new model - starting epoch 20 at 2023-11-14 15:35:17.141415
+0.159 high score: 0.805		gamma: 0.159 win rate: 0.508 tie rate: 0.349 loss rate: 0.143	time: 2023-11-14 15:35:37.163206
+new model - starting epoch 21 at 2023-11-14 15:35:37.163206
+0.159 high score: 0.805		gamma: 0.249 win rate: 0.511 tie rate: 0.337 loss rate: 0.152	time: 2023-11-14 15:35:41.030898
+new model - starting epoch 22 at 2023-11-14 15:35:41.031901
+0.159 high score: 0.805		gamma: 0.339 win rate: 0.499 tie rate: 0.344 loss rate: 0.157	time: 2023-11-14 15:35:44.857428
+new model - starting epoch 23 at 2023-11-14 15:35:44.857428
+0.159 high score: 0.805		gamma: 0.429 win rate: 0.508 tie rate: 0.340 loss rate: 0.152	time: 2023-11-14 15:35:48.626627
+new model - starting epoch 24 at 2023-11-14 15:35:48.626627
+0.519 high score: 0.807		gamma: 0.519 win rate: 0.518 tie rate: 0.339 loss rate: 0.143	time: 2023-11-14 15:36:10.548473
+new model - starting epoch 25 at 2023-11-14 15:36:10.548473
+0.519 high score: 0.807		gamma: 0.609 win rate: 0.509 tie rate: 0.346 loss rate: 0.144	time: 2023-11-14 15:36:14.270325
+new model - starting epoch 26 at 2023-11-14 15:36:14.271324
+0.519 high score: 0.807		gamma: 0.699 win rate: 0.496 tie rate: 0.355 loss rate: 0.149	time: 2023-11-14 15:36:18.001260
+new model - starting epoch 27 at 2023-11-14 15:36:18.001260
+0.519 high score: 0.807		gamma: 0.789 win rate: 0.523 tie rate: 0.317 loss rate: 0.160	time: 2023-11-14 15:36:22.341268
+new model - starting epoch 28 at 2023-11-14 15:36:22.341268
+0.519 high score: 0.807		gamma: 0.879 win rate: 0.497 tie rate: 0.332 loss rate: 0.171	time: 2023-11-14 15:36:26.034730
+new model - starting epoch 29 at 2023-11-14 15:36:26.035733
+0.519 high score: 0.807		gamma: 0.969 win rate: 0.511 tie rate: 0.315 loss rate: 0.173	time: 2023-11-14 15:36:29.694443
+new model - starting epoch 30 at 2023-11-14 15:36:29.694443
+0.519 high score: 0.807		gamma: 0.174 win rate: 0.526 tie rate: 0.298 loss rate: 0.177	time: 2023-11-14 15:36:33.338977
+new model - starting epoch 31 at 2023-11-14 15:36:33.338977
+0.519 high score: 0.807		gamma: 0.255 win rate: 0.593 tie rate: 0.218 loss rate: 0.189	time: 2023-11-14 15:36:36.975578
+new model - starting epoch 32 at 2023-11-14 15:36:36.976581
+0.519 high score: 0.807		gamma: 0.336 win rate: 0.587 tie rate: 0.216 loss rate: 0.197	time: 2023-11-14 15:36:40.632531
+new model - starting epoch 33 at 2023-11-14 15:36:40.633532
+0.519 high score: 0.807		gamma: 0.417 win rate: 0.606 tie rate: 0.214 loss rate: 0.180	time: 2023-11-14 15:36:44.282382
+new model - starting epoch 34 at 2023-11-14 15:36:44.282382
+0.519 high score: 0.807		gamma: 0.498 win rate: 0.610 tie rate: 0.224 loss rate: 0.166	time: 2023-11-14 15:36:47.919542
+new model - starting epoch 35 at 2023-11-14 15:36:47.920545
+0.519 high score: 0.807		gamma: 0.579 win rate: 0.630 tie rate: 0.180 loss rate: 0.190	time: 2023-11-14 15:36:51.557138
+new model - starting epoch 36 at 2023-11-14 15:36:51.557138
+0.519 high score: 0.807		gamma: 0.660 win rate: 0.662 tie rate: 0.169 loss rate: 0.169	time: 2023-11-14 15:36:55.131332
+new model - starting epoch 37 at 2023-11-14 15:36:55.131332
+0.519 high score: 0.807		gamma: 0.741 win rate: 0.653 tie rate: 0.171 loss rate: 0.176	time: 2023-11-14 15:36:58.696384
+new model - starting epoch 38 at 2023-11-14 15:36:58.696384
+0.519 high score: 0.807		gamma: 0.822 win rate: 0.501 tie rate: 0.322 loss rate: 0.177	time: 2023-11-14 15:37:02.306027
+new model - starting epoch 39 at 2023-11-14 15:37:02.307030
+0.519 high score: 0.807		gamma: 0.903 win rate: 0.515 tie rate: 0.314 loss rate: 0.171	time: 2023-11-14 15:37:05.880721
+new model - starting epoch 40 at 2023-11-14 15:37:05.880721
+0.519 high score: 0.807		gamma: 0.224 win rate: 0.543 tie rate: 0.292 loss rate: 0.165	time: 2023-11-14 15:37:09.462703
+new model - starting epoch 41 at 2023-11-14 15:37:09.463720
+0.519 high score: 0.807		gamma: 0.297 win rate: 0.627 tie rate: 0.204 loss rate: 0.169	time: 2023-11-14 15:37:13.042166
+new model - starting epoch 42 at 2023-11-14 15:37:13.042166
+0.519 high score: 0.807		gamma: 0.370 win rate: 0.646 tie rate: 0.181 loss rate: 0.173	time: 2023-11-14 15:37:16.611048
+new model - starting epoch 43 at 2023-11-14 15:37:16.612051
+0.519 high score: 0.807		gamma: 0.442 win rate: 0.620 tie rate: 0.208 loss rate: 0.172	time: 2023-11-14 15:37:20.163479
+new model - starting epoch 44 at 2023-11-14 15:37:20.163479
+0.519 high score: 0.807		gamma: 0.515 win rate: 0.637 tie rate: 0.178 loss rate: 0.185	time: 2023-11-14 15:37:23.711119
+new model - starting epoch 45 at 2023-11-14 15:37:23.711119
+0.519 high score: 0.807		gamma: 0.588 win rate: 0.653 tie rate: 0.173 loss rate: 0.174	time: 2023-11-14 15:37:27.215702
+new model - starting epoch 46 at 2023-11-14 15:37:27.215702
+0.519 high score: 0.807		gamma: 0.661 win rate: 0.648 tie rate: 0.177 loss rate: 0.175	time: 2023-11-14 15:37:30.787104
+new model - starting epoch 47 at 2023-11-14 15:37:30.788106
+0.519 high score: 0.807		gamma: 0.734 win rate: 0.547 tie rate: 0.276 loss rate: 0.177	time: 2023-11-14 15:37:34.357161
+new model - starting epoch 48 at 2023-11-14 15:37:34.358492
+0.519 high score: 0.807		gamma: 0.807 win rate: 0.507 tie rate: 0.323 loss rate: 0.170	time: 2023-11-14 15:37:38.737804
+new model - starting epoch 49 at 2023-11-14 15:37:38.738808
+0.519 high score: 0.807		gamma: 0.880 win rate: 0.515 tie rate: 0.308 loss rate: 0.177	time: 2023-11-14 15:37:42.293145
+new model - starting epoch 50 at 2023-11-14 15:37:42.294149
+0.519 high score: 0.807		gamma: 0.241 win rate: 0.569 tie rate: 0.259 loss rate: 0.172	time: 2023-11-14 15:37:45.806386
+new model - starting epoch 51 at 2023-11-14 15:37:45.806386
+0.519 high score: 0.807		gamma: 0.306 win rate: 0.571 tie rate: 0.252 loss rate: 0.177	time: 2023-11-14 15:37:49.384281
+new model - starting epoch 52 at 2023-11-14 15:37:49.384281
+0.519 high score: 0.807		gamma: 0.372 win rate: 0.574 tie rate: 0.265 loss rate: 0.161	time: 2023-11-14 15:37:52.899982
+new model - starting epoch 53 at 2023-11-14 15:37:52.900985
+0.519 high score: 0.807		gamma: 0.438 win rate: 0.647 tie rate: 0.180 loss rate: 0.172	time: 2023-11-14 15:37:56.477235
+new model - starting epoch 54 at 2023-11-14 15:37:56.477235
+0.519 high score: 0.807		gamma: 0.503 win rate: 0.660 tie rate: 0.170 loss rate: 0.170	time: 2023-11-14 15:37:59.961305
+new model - starting epoch 55 at 2023-11-14 15:37:59.962308
+0.519 high score: 0.807		gamma: 0.569 win rate: 0.655 tie rate: 0.165 loss rate: 0.180	time: 2023-11-14 15:38:03.445971
+new model - starting epoch 56 at 2023-11-14 15:38:03.445971
+0.519 high score: 0.807		gamma: 0.634 win rate: 0.648 tie rate: 0.166 loss rate: 0.185	time: 2023-11-14 15:38:06.912737
+new model - starting epoch 57 at 2023-11-14 15:38:06.913739
+0.519 high score: 0.807		gamma: 0.700 win rate: 0.666 tie rate: 0.161 loss rate: 0.173	time: 2023-11-14 15:38:10.380374
+new model - starting epoch 58 at 2023-11-14 15:38:10.380374
+0.519 high score: 0.807		gamma: 0.766 win rate: 0.665 tie rate: 0.169 loss rate: 0.166	time: 2023-11-14 15:38:13.869117
+new model - starting epoch 59 at 2023-11-14 15:38:13.869117
+0.519 high score: 0.807		gamma: 0.831 win rate: 0.556 tie rate: 0.277 loss rate: 0.167	time: 2023-11-14 15:38:17.305392
+new model - starting epoch 60 at 2023-11-14 15:38:17.305392
+0.519 high score: 0.807		gamma: 0.276 win rate: 0.517 tie rate: 0.338 loss rate: 0.145	time: 2023-11-14 15:38:20.750939
+new model - starting epoch 61 at 2023-11-14 15:38:20.751942
+0.519 high score: 0.807		gamma: 0.335 win rate: 0.520 tie rate: 0.335 loss rate: 0.145	time: 2023-11-14 15:38:24.178958
+new model - starting epoch 62 at 2023-11-14 15:38:24.178958
+0.519 high score: 0.807		gamma: 0.394 win rate: 0.510 tie rate: 0.334 loss rate: 0.156	time: 2023-11-14 15:38:27.567946
+new model - starting epoch 63 at 2023-11-14 15:38:27.567946
+0.519 high score: 0.807		gamma: 0.453 win rate: 0.514 tie rate: 0.337 loss rate: 0.149	time: 2023-11-14 15:38:30.993368
+new model - starting epoch 64 at 2023-11-14 15:38:30.993368
+0.512 high score: 0.810		gamma: 0.512 win rate: 0.519 tie rate: 0.339 loss rate: 0.142	time: 2023-11-14 15:39:05.686421
+new model - starting epoch 65 at 2023-11-14 15:39:05.686421
+0.571 high score: 0.828		gamma: 0.571 win rate: 0.528 tie rate: 0.337 loss rate: 0.135	time: 2023-11-14 15:39:40.762935
+new model - starting epoch 66 at 2023-11-14 15:39:40.763938
+0.571 high score: 0.828		gamma: 0.630 win rate: 0.521 tie rate: 0.337 loss rate: 0.143	time: 2023-11-14 15:39:44.181878
+new model - starting epoch 67 at 2023-11-14 15:39:44.181878
+0.571 high score: 0.828		gamma: 0.689 win rate: 0.663 tie rate: 0.180 loss rate: 0.157	time: 2023-11-14 15:39:47.599145
+new model - starting epoch 68 at 2023-11-14 15:39:47.600147
+0.571 high score: 0.828		gamma: 0.748 win rate: 0.538 tie rate: 0.291 loss rate: 0.171	time: 2023-11-14 15:39:51.021651
+new model - starting epoch 69 at 2023-11-14 15:39:51.022664
+0.571 high score: 0.828		gamma: 0.807 win rate: 0.549 tie rate: 0.295 loss rate: 0.155	time: 2023-11-14 15:39:54.419992
+new model - starting epoch 70 at 2023-11-14 15:39:54.421009
+0.571 high score: 0.828		gamma: 0.298 win rate: 0.512 tie rate: 0.340 loss rate: 0.148	time: 2023-11-14 15:39:57.758342
+new model - starting epoch 71 at 2023-11-14 15:39:57.759344
+0.571 high score: 0.828		gamma: 0.351 win rate: 0.521 tie rate: 0.330 loss rate: 0.149	time: 2023-11-14 15:40:01.117640
+new model - starting epoch 72 at 2023-11-14 15:40:01.118642
+0.571 high score: 0.828		gamma: 0.404 win rate: 0.523 tie rate: 0.333 loss rate: 0.144	time: 2023-11-14 15:40:04.443186
+new model - starting epoch 73 at 2023-11-14 15:40:04.443186
+0.571 high score: 0.828		gamma: 0.457 win rate: 0.505 tie rate: 0.344 loss rate: 0.150	time: 2023-11-14 15:40:07.796621
+new model - starting epoch 74 at 2023-11-14 15:40:07.797624
+0.571 high score: 0.828		gamma: 0.511 win rate: 0.511 tie rate: 0.343 loss rate: 0.146	time: 2023-11-14 15:40:11.161689
+new model - starting epoch 75 at 2023-11-14 15:40:11.161689
+0.571 high score: 0.828		gamma: 0.564 win rate: 0.526 tie rate: 0.331 loss rate: 0.143	time: 2023-11-14 15:40:14.479710
+new model - starting epoch 76 at 2023-11-14 15:40:14.479710
+0.617 high score: 0.843		gamma: 0.617 win rate: 0.534 tie rate: 0.336 loss rate: 0.129	time: 2023-11-14 15:40:51.670749
+new model - starting epoch 77 at 2023-11-14 15:40:51.670749
+0.617 high score: 0.843		gamma: 0.670 win rate: 0.667 tie rate: 0.173 loss rate: 0.160	time: 2023-11-14 15:40:55.053859
+new model - starting epoch 78 at 2023-11-14 15:40:55.053859
+0.617 high score: 0.843		gamma: 0.723 win rate: 0.662 tie rate: 0.165 loss rate: 0.173	time: 2023-11-14 15:40:58.452798
+new model - starting epoch 79 at 2023-11-14 15:40:58.452798
+0.617 high score: 0.843		gamma: 0.776 win rate: 0.536 tie rate: 0.283 loss rate: 0.181	time: 2023-11-14 15:41:01.831967
+new model - starting epoch 80 at 2023-11-14 15:41:01.831967
+0.617 high score: 0.843		gamma: 0.314 win rate: 0.530 tie rate: 0.330 loss rate: 0.140	time: 2023-11-14 15:41:05.175199
+new model - starting epoch 81 at 2023-11-14 15:41:05.175199
+0.617 high score: 0.843		gamma: 0.362 win rate: 0.524 tie rate: 0.338 loss rate: 0.138	time: 2023-11-14 15:41:08.525412
+new model - starting epoch 82 at 2023-11-14 15:41:08.526412
