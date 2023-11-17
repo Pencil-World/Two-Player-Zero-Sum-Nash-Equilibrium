@@ -1,12 +1,17 @@
 import numpy as np
 
 class TicTacToe():
-    def __init__(self, board = []):
-        self.board = np.full([9], 0, dtype = np.int8)
-        if len(board) > 0:
-            for i, elem in enumerate(board):
-                self.board[i] = elem
-        self.update()
+    def __init__(self, other = None):
+        if other == None:
+            self.board = np.full([9], 0, dtype = np.int8)
+            self.children = { i: [None, 0] for i in range(9) }
+            self.reward = 0
+            self.actions = []
+        else:
+            self.board = other.board.copy()
+            self.children = other.children.copy()
+            # self.reward = other.reward
+            self.actions = other.actions.copy()
 
     def __repr__(self):
         return str(self.board)
@@ -18,22 +23,20 @@ class TicTacToe():
             board[i // 3][i % 3] = dict[elem]
         return str(board)
 
-    def update(self, action = None):
-        if action != None:
-            self.board[action] = 2 - len(self.actions) % 2
-        self.children = { i: [None, 0] for i, elem in enumerate(self.board) if not elem }
-        self.reward = self.__reward
-        self.actions = self.__actions
+    def update(self, action):
+        del self.children[action]
+        self.reward = self.__reward(action)
+        self.__actions(action)
 
-    def move(self, action):
+    def move(self, action, player):
         if self.children[action][0] != None:
             return self.children[action][0]
-        temp = self.children[action][0] = TicTacToe(self.board)
+        temp = self.children[action][0] = TicTacToe(self)
+        temp.board[action] = player
         temp.update(action)
         return temp
 
-    @property
-    def __reward(self):
+    def __reward(self, action):
         tokenizer = np.array([1, 3, 9]) # tokenizes the elements " ", "X", and "O" into numerical forms
         parser = { 7: 3, 9: 13, 19: -3, 27: -13 } # converts the tokens into rewards throughout the board
         reward = 0
@@ -45,6 +48,5 @@ class TicTacToe():
             reward += parser.get(temp, 0)
         return reward
 
-    @property
-    def __actions(self):
-        return list(self.children.keys())
+    def __actions(self, action):
+        self.actions.remove(action)

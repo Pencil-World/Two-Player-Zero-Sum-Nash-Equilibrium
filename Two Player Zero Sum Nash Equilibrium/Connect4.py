@@ -38,10 +38,12 @@ class Connect4():
         return temp
 
     @property
-    def __reward(self):
+    def __reward(self, action):
         tokenizer = np.array([1, 3, 9]) # tokenizes the elements " ", "X", and "O" into numerical forms
-        parser = { 10: 1, 12: 20, 28: -1, 36: -20 } # converts the tokens into rewards throughout the board
-        reward = 0
+        parser = { 10: 1, 12: 10, 28: -1, 36: -10 } # converts the tokens into rewards throughout the board
+        temp = 0
+        for step in [[]]:
+            
         for (origin, delta, repeat) in zip([[0, 0], [0, 0], [0, 2], [0, 3], [1, 0], [1, 5]], [[0, 1], [1, 0], [0, -1], [0, 1], [1, 0], [1, 0]], [6, 7, 2, 2, 2, 2]):
             for i in range(repeat):
                 coord = [origin[0] + i * delta[0], origin[1] + i * delta[1]]
@@ -58,6 +60,5 @@ class Connect4():
                             reward += parser.get(counter, 0)
         return reward
 
-    @property
-    def __actions(self):
+    def __actions(self, action):
         return list(self.children.keys())

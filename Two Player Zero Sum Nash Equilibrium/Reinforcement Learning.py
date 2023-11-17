@@ -1,5 +1,5 @@
 from TicTacToe import TicTacToe
-# from Connect4 import Connect4
+from Connect4 import Connect4
 import datetime
 from collections import deque
 import json
@@ -9,10 +9,13 @@ from tensorflow import keras
 
 # ***IMPORTANT*** NO EXPECTED RETURN NOR REWARD SHOULD BE GREATER THAN 100_000 EVER! 100_000 IS THE SAFE NUMBER!
 
-"""
+'''
 Please change the multiplier of Experiment.MoE to control the convergence rate of gamma. 
-
-"""
+Tests each of the 10 test stats for gamma values
+After testing each test stat, calculates the weighted average of the test stats
+generates 10 test stats equally distributed across the margin of error
+Each generation of test stats will decrease the margin of error until the convergence of gamma
+'''
 def Experiment():
     global gamma, test_stats
     pi = epoch_count % 10
@@ -25,10 +28,10 @@ def Experiment():
     gamma = test_stats[pi][0]
 Experiment.MoE = 0.5
 
-"""
+'''
 Please change the score function depending on the scenario of the situation used. 
 
-"""
+'''
 def Conclude():
     global BestScore
     pi = epoch_count % 10 if len(test_stats) > 1 else 0
@@ -54,6 +57,7 @@ def log(text):
     with open('log.txt', 'a') as log:
         log.write(text + "\n")
 
+# returns the best action for the model given the state and foresight
 def self_agent_action(state, _steps):
     if not _steps:
         return max(state.children.values(), key = lambda k: (k[1] if k[0] != None else -100_000))
@@ -66,6 +70,7 @@ def self_agent_action(state, _steps):
                 max_value_action = (action, value)
     return max_value_action
 
+# returns the best action for the opponent given the state and foresight
 def other_agent_action(state, _steps):
     if not _steps:
         return min(state.children.values(), key = lambda k: (k[1] if k[0] != None else 100_000))
@@ -78,10 +83,12 @@ def other_agent_action(state, _steps):
                 min_value_action = (action, value)
     return min_value_action
 
+# generates episodes of a given state and returns the history of the actions; uses an epsilon-greedy policy
 def evaluate_the_policy():
     global state
     history = []
     actions = state.actions
+    isAgentXTurn = True
 
     while len(actions):
         epsilon = episode_count / episodes
@@ -94,11 +101,13 @@ def evaluate_the_policy():
             action = random.choice(actions)
 
         history.append((state, action))
-        state = state.move(action)
+        state = state.move(action, 2 - int(isAgentXTurn))
         actions = state.actions
+        isAgentXTurn = not isAgentXTurn
     
     return history
 
+# improves the QTable from the history of an episode and logs the result; uses a geometric backtrack
 def improve_the_policy(history):
     global CurrScore, state
     if len(history) < 9 or state.reward:
@@ -113,6 +122,7 @@ def improve_the_policy(history):
         trace.children[action][1] = value_past + alpha * (value_new - value_past) if trace.children[action][1] else value_new
     state = trace
 
+# IMPROVE THE FETCHING SPEEDS OF THE ONE JSON BECAUSE IT'S SUPER SLOW RIGHT NOW
 def Test():
     print("Test")
     QTable = json.load(open('The One.json', 'r'))
