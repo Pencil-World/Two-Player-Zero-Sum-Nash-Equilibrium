@@ -1,5 +1,5 @@
 from TicTacToe import TicTacToe
-from Connect4 import Connect4
+# from Connect4 import Connect4
 import datetime
 from collections import deque
 import json
@@ -30,7 +30,10 @@ Experiment.MoE = 0.5
 
 '''
 Please change the score function depending on the scenario of the situation used. 
-
+Updates the output of the tested statistic
+If the output of the tested statistic is better than best
+Updates best to the tested statistic and score function
+Saves the model to agent.json
 '''
 def Conclude():
     global BestScore
@@ -44,10 +47,10 @@ def Conclude():
         while len(queue) > 0:
             item = queue.popleft()
             lst = [100_000] * 9
-            for action, (trace, value) in item.children.items():
+            for action, (trace, value) in item.descendants.items():
                 if trace:
                     queue.append(trace)
-                lst[action] = value
+                    lst[action] = value
             QTable[repr(item)] = repr(lst)
 
         JSON = dict(zip(QTable.keys(), QTable.values())) # works for jagged arrays. includes commas
@@ -60,12 +63,12 @@ def log(text):
 # returns the best action for the model given the state and foresight
 def self_agent_action(state, _steps):
     if not _steps:
-        return max(state.children.values(), key = lambda k: (k[1] if k[0] != None else -100_000))
+        return max(state.descendants.values(), key = lambda k: (k[1] if k[0] != None else -100_000))
     
     max_value_action = None
-    for action, (child, junk) in state.children.items():
+    for action, (child, junk) in state.descendants.items():
         if child:
-            value = other_agent_action(child, _steps - 1)[1] if child.children else child.reward
+            value = other_agent_action(child, _steps - 1)[1] if child.descendants else child.reward
             if not max_value_action or value > max_value_action[1]:
                 max_value_action = (action, value)
     return max_value_action
@@ -73,12 +76,12 @@ def self_agent_action(state, _steps):
 # returns the best action for the opponent given the state and foresight
 def other_agent_action(state, _steps):
     if not _steps:
-        return min(state.children.values(), key = lambda k: (k[1] if k[0] != None else 100_000))
+        return min(state.descendants.values(), key = lambda k: (k[1] if k[0] != None else 100_000))
     
     min_value_action = None
-    for action, (child, junk) in state.children.items():
+    for action, (child, junk) in state.descendants.items():
         if child:
-            value = self_agent_action(child, _steps - 1)[1] if child.children else child.reward
+            value = self_agent_action(child, _steps - 1)[1] if child.descendants else child.reward
             if not min_value_action or value < min_value_action[1]:
                 min_value_action = (action, value)
     return min_value_action
@@ -87,24 +90,23 @@ def other_agent_action(state, _steps):
 def evaluate_the_policy():
     global state
     history = []
-    actions = state.actions
+    descendants = state.descendants
     isAgentXTurn = True
 
-    while len(actions):
+    while len(descendants):
         epsilon = episode_count / episodes
-        temp = [elem for elem in actions if state.children[elem][0] == None]
-        if random.random() < epsilon and len(temp) < len(state.children):
+        temp = [key for key, val in descendants.items() if val[0] == None]
+        if random.random() < epsilon and len(temp) < len(descendants):
             action = (self_agent_action(state, steps) if len(history) % 2 else other_agent_action(state, steps))[0]
         else:
-            if epsilon < 0.5:
-                actions = state.actions if len(temp) == 0 else temp
+            actions = state.descendants.keys() if epsilon < 0.5 and len(temp) == 0 else temp
             action = random.choice(actions)
 
         history.append((state, action))
         state = state.move(action, 2 - int(isAgentXTurn))
-        actions = state.actions
+        descendants = state.descendants
         isAgentXTurn = not isAgentXTurn
-    
+
     return history
 
 # improves the QTable from the history of an episode and logs the result; uses a geometric backtrack
@@ -117,25 +119,23 @@ def improve_the_policy(history):
 
     reward = state.reward
     for trace, action in history[::-1]:
-        value_past = trace.children[action][1]
+        value_past = trace.descendants[action][1]
         value_new = reward = gamma * reward + trace.reward
-        trace.children[action][1] = value_past + alpha * (value_new - value_past) if trace.children[action][1] else value_new
+        trace.descendants[action][1] = value_past + alpha * (value_new - value_past) if trace.descendants[action][1] else value_new
     state = trace
 
-# IMPROVE THE FETCHING SPEEDS OF THE ONE JSON BECAUSE IT'S SUPER SLOW RIGHT NOW
 def Test():
     print("Test")
     QTable = json.load(open('The One.json', 'r'))
     
     root = TicTacToe()
     queue = deque([root])
-    while len(queue) > 0:
+    for key, val in QTable.items():
         item = queue.popleft()
-        values = json.loads(QTable.get(repr(item), "[100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000]"))
-        for action in item.actions:
-            if values[action] < 100_000:
+        for action, value in enumerate(json.loads(val)):
+            if value < 100_000:
                 trace = item.move(action)
-                item.children[action] = [trace, values[action]]
+                item.descendants[action] = [trace, value]
                 queue.append(trace)
         
     for temp in range(1_000):
@@ -145,7 +145,7 @@ def Test():
             print('\n' + str(state))
             actions = state.actions
             if AgentTurn:
-                if len([elem for elem in actions if state.children[elem][0] == None]) < len(state.children):
+                if len([elem for elem in actions if state.descendants[elem][0] == None]) < len(state.descendants):
                     action = (self_agent_action(state, steps) if isAgentX else other_agent_action(state, steps))[0]
                 else:
                     print("Unknown scenario")
