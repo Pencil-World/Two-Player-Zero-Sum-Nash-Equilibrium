@@ -34,29 +34,6 @@ class Connect4():
         temp.__update(action)
         return temp
 
-    @property
-    def __reward(self, action):
-        tokenizer = np.array([1, 3, 9]) # tokenizes the elements " ", "X", and "O" into numerical forms
-        parser = { 10: 1, 12: 10, 28: -1, 36: -10 } # converts the tokens into rewards throughout the board
-        temp = 0
-        for step in [[]]:
-            
-        for (origin, delta, repeat) in zip([[0, 0], [0, 0], [0, 2], [0, 3], [1, 0], [1, 5]], [[0, 1], [1, 0], [0, -1], [0, 1], [1, 0], [1, 0]], [6, 7, 2, 2, 2, 2]):
-            for i in range(repeat):
-                coord = [origin[0] + i * delta[0], origin[1] + i * delta[1]]
-                for change, maximum_stuff in zip([[0, 0], [0, 0]], [[0, 1], [1, 0], [1, 1], []]):
-                    counter = 0
-                    streak = None
-                    for junk in range(maximum_stuff):
-                        if self.board[0][0] == streak:
-                            counter += tokenizer[streak]
-                        else:
-                            if counter == 12 or counter == 36:
-                                self.descendants = {}
-                                return parser[counter]
-                            reward += parser.get(counter, 0)
-        return reward
-
     def __descendants_function(self, action):
         if self.board[action].count_nonzero() == len(self.board[action]):
             del self.descendants[action]
@@ -65,23 +42,24 @@ class Connect4():
     def __reward_function(self, action):
         tokenizer = np.array([1, 3, 9]) # tokenizes the elements " ", "X", and "O" into numerical forms
         parser = { 13: 3, 12: 13, 28: -3, 36: -13 } # converts the tokens into rewards throughout the board
-        
+        player = self.board[action[0]][action[1]]
+        view = 0
         for step in [[0, 1], [1, 0], [1, -1], [1, 1]]:
             stack = deque()
             limit = 3
             for sign in [-1, 1]:
                 index = action.copy()
-                while limit > 0 and 0 <= index[0] < 6 and 0 <= index[1] < 7:
+                while (limit := limit - 1) >= 0 and 0 <= index[0] < 6 and 0 <= index[1] < 7:
                     if sign == -1:
-                        stack.append(self.board[index[0]][index[1]])
+                        stack.append(tokenizer[self.board[index[0]][index[1]]])
                     else:
-                        stack.pop()
+                        stack.appendleft(tokenizer[self.board[index[0]][index[1]]])
+                        if len(stack) > 4:
+                            view += stack[0] - stack.pop()
+                            if view == 12 or view == 36:
+                                self.descendants = {}
+                                self.reward = parser[view]
+                                return
+                            self.reward += parser.get(view, 0) - parser.get(view + 1 - player, 0)
                     index = [index[0] + sign * step[0], index[1] + sign * step[1]]
-                    limit -= 1
-                    if temp == 12 or temp == 36:
-                        self.descendants = {}
-                        self.reward = parser[temp]
-                        return
-                    self.reward += parser.get(temp, 0)
-                limit = 4 - limit
-        self.reward = 0
+                limit = 4
