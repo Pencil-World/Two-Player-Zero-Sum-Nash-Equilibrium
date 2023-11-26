@@ -9,7 +9,7 @@ class Connect4():
             self.reward = 0
         else:
             self.board = other.board.copy()
-            self.descendants = other.descendants.copy()
+            self.descendants = {action: [None, 0] for action, junk in other.descendants.items()}
             self.reward = other.reward
 
     def __repr__(self):
@@ -30,7 +30,7 @@ class Connect4():
         if self.descendants[action][0] != None:
             return self.descendants[action][0]
         temp = self.descendants[action][0] = Connect4(self.board)
-        temp.board[action[0]][action[1]] = player
+        temp.board[action][temp.board[action].count_nonzero()] = player
         temp.__update(action)
         return temp
 
@@ -46,9 +46,9 @@ class Connect4():
         view = 0
         for step in [[0, 1], [1, 0], [1, -1], [1, 1]]:
             stack = deque()
-            limit = 3
             for sign in [-1, 1]:
                 index = action.copy()
+                limit = 3
                 while (limit := limit - 1) >= 0 and 0 <= index[0] < 6 and 0 <= index[1] < 7:
                     if sign == -1:
                         stack.append(tokenizer[self.board[index[0]][index[1]]])
@@ -62,4 +62,3 @@ class Connect4():
                                 return
                             self.reward += parser.get(view, 0) - parser.get(view + 1 - player, 0)
                     index = [index[0] + sign * step[0], index[1] + sign * step[1]]
-                limit = 4

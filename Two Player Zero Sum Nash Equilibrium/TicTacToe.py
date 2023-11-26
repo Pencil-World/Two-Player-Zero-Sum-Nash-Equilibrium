@@ -8,7 +8,7 @@ class TicTacToe():
             self.reward = 0
         else:
             self.board = other.board.copy()
-            self.descendants = other.descendants.copy()
+            self.descendants = {action: [None, 0] for action, junk in other.descendants.items()}
             # self.reward = other.reward
 
     def __repr__(self):
@@ -21,7 +21,7 @@ class TicTacToe():
             board[i // 3][i % 3] = dict[elem]
         return str(board)
 
-    def update(self, action):
+    def __update(self, action):
         self.__descendants_function(action)
         self.__reward_function(action)
 
@@ -30,7 +30,7 @@ class TicTacToe():
             return self.descendants[action][0]
         temp = self.descendants[action][0] = TicTacToe(self)
         temp.board[action] = player
-        temp.update(action)
+        temp.__update(action)
         return temp
 
     def __descendants_function(self, action):
@@ -44,5 +44,6 @@ class TicTacToe():
             temp = sum(tokenizer[self.board[[coord, coord + change, coord + change + change]]])
             if temp == 9 or temp == 27:
                 self.descendants = {}
-                return parser[temp]
-            self.reward += parser.get(temp, 0)  
+                self.reward = parser[temp]
+                return
+            self.reward += parser.get(temp, 0)

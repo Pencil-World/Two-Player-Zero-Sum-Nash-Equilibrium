@@ -1,5 +1,5 @@
 from TicTacToe import TicTacToe
-# from Connect4 import Connect4
+from Connect4 import Connect4
 import datetime
 from collections import deque
 import json
@@ -38,7 +38,7 @@ Saves the model to agent.json
 def Conclude():
     global BestScore
     pi = epoch_count % 10 if len(test_stats) > 1 else 0
-    test_stats[pi][1] = ScoreTicTacToe()
+    test_stats[pi][1] = 1.15 * (CurrScore[0] - CurrScore[2]) + CurrScore[1] # this is the score function
     if BestScore[1] < test_stats[pi][1]:
         BestScore = [gamma, test_stats[pi][1]]
         QTable = dict()
@@ -46,7 +46,7 @@ def Conclude():
 
         while len(queue) > 0:
             item = queue.popleft()
-            lst = [100_000] * 9
+            lst = [100_000 if (item.board.size - len(item.descendants)) % 2 else -100_000] * len(item.board)
             for action, (trace, value) in item.descendants.items():
                 if trace:
                     queue.append(trace)
@@ -91,15 +91,15 @@ def evaluate_the_policy():
     global state
     history = []
     descendants = state.descendants
+    epsilon = episode_count / episodes
     isAgentXTurn = True
 
     while len(descendants):
-        epsilon = episode_count / episodes
         temp = [key for key, val in descendants.items() if val[0] == None]
         if random.random() < epsilon and len(temp) < len(descendants):
-            action = (self_agent_action(state, steps) if len(history) % 2 else other_agent_action(state, steps))[0]
+            action = (self_agent_action(state, steps) if isAgentXTurn else other_agent_action(state, steps))[0]
         else:
-            actions = state.descendants.keys() if epsilon < 0.5 and len(temp) == 0 else temp
+            actions = list(state.descendants.keys()) if epsilon > 0.5 or len(temp) == 0 else temp
             action = random.choice(actions)
 
         history.append((state, action))
@@ -112,7 +112,7 @@ def evaluate_the_policy():
 # improves the QTable from the history of an episode and logs the result; uses a geometric backtrack
 def improve_the_policy(history):
     global CurrScore, state
-    if len(history) < 9 or state.reward:
+    if len(history) < 9 or state.reward: # either the game is won/lost and ends early or the game finishes with a win/loss and there is a nonzero reward
         CurrScore[1 - np.sign(state.reward)] += 1
     else:
         CurrScore[1] += 1
@@ -121,32 +121,21 @@ def improve_the_policy(history):
     for trace, action in history[::-1]:
         value_past = trace.descendants[action][1]
         value_new = reward = gamma * reward + trace.reward
-        trace.descendants[action][1] = value_past + alpha * (value_new - value_past) if trace.descendants[action][1] else value_new
+        trace.descendants[action][1] = value_past + alpha * (value_new - value_past) if trace.descendants[action][0] == None else value_new
     state = trace
 
 def Test():
     print("Test")
-    QTable = json.load(open('The One.json', 'r'))
-    
-    root = TicTacToe()
-    queue = deque([root])
-    for key, val in QTable.items():
-        item = queue.popleft()
-        for action, value in enumerate(json.loads(val)):
-            if value < 100_000:
-                trace = item.move(action)
-                item.descendants[action] = [trace, value]
-                queue.append(trace)
-        
+    QTable = json.load(open('The One.json', 'r'))        
     for temp in range(1_000):
-        state = root
+        state = TicTacToe()
         isAgentX = AgentTurn = round(random.random())
-        while state.actions:
+        while len(actions := list(state.descendants.keys())):
             print('\n' + str(state))
-            actions = state.actions
+            values = json.loads(QTable[repr(state)])
             if AgentTurn:
-                if len([elem for elem in actions if state.descendants[elem][0] == None]) < len(state.descendants):
-                    action = (self_agent_action(state, steps) if isAgentX else other_agent_action(state, steps))[0]
+                if sum([elem != abs(100_000) for elem in values]):
+                    action = np.argmax(values) if isAgentX else np.argmin(values)
                 else:
                     print("Unknown scenario")
                     action = actions[random.randrange(0, len(actions))]
@@ -155,15 +144,9 @@ def Test():
                 while not action in actions:
                     action = int(input("Input your turn: ")) - 1
 
+            state = state.move(action, 2 - int(isAgentX == AgentTurn))
             AgentTurn = not AgentTurn
-            state = state.move(action)
         print('\n' + str(state))
-
-def ScoreTicTacToe():
-    return 1.25 * (CurrScore[0] - CurrScore[2]) + CurrScore[1]
-
-def ScoreConnect4():
-    return 2 * CurrScore[0] + CurrScore[1]
 
 # Variables are in alphabetical order
 alpha = 0.001 # learning rate. model learns faster at higher alpha and learns slower at lower alpha
