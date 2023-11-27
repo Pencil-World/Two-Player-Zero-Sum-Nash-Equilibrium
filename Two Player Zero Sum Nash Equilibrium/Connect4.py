@@ -4,8 +4,8 @@ import numpy as np
 class Connect4():
     def __init__(self, other = None):
         if other == None:
-            self.board = np.full([6, 7], 0, dtype = np.int8)
-            self.descendants = { i: [None, 0] for i in range(9) }
+            self.board = np.full([7, 6], 0, dtype = np.int8)
+            self.descendants = { i: [None, 0] for i in range(7) }
             self.reward = 0
         else:
             self.board = other.board.copy()
@@ -18,47 +18,51 @@ class Connect4():
     def __str__(self):
         board = np.full([6, 7], "")
         dict = [" ", "X", "O"]
-        for i, elem in enumerate(self.board):
-            board[i // 6][i % 7] = dict[elem]
+        for i in range(7):
+            for j in range(6):
+                board[-1 - j][i] = dict[self.board[i][j]]
         return str(board)
 
-    def __update(self, action):
-        self.__descendants_function(action)
-        self.__reward_function(action)
+    def __update(self, action, pos):
+        self.__descendants_function(action, pos)
+        self.__reward_function(action, pos)
 
     def move(self, action, player):
         if self.descendants[action][0] != None:
             return self.descendants[action][0]
-        temp = self.descendants[action][0] = Connect4(self.board)
-        temp.board[action][temp.board[action].count_nonzero()] = player
-        temp.__update(action)
+        temp = self.descendants[action][0] = Connect4(self)
+        pos = np.count_nonzero(temp.board[action])
+        temp.board[action][pos] = player
+        temp.__update(action, pos)
         return temp
 
-    def __descendants_function(self, action):
-        if self.board[action].count_nonzero() == len(self.board[action]):
+    def __descendants_function(self, action, pos):
+        if pos == 5:
             del self.descendants[action]
 
-    # read board from left to right, up to down
-    def __reward_function(self, action):
-        tokenizer = np.array([1, 3, 9]) # tokenizes the elements " ", "X", and "O" into numerical forms
-        parser = { 13: 3, 12: 13, 28: -3, 36: -13 } # converts the tokens into rewards throughout the board
-        player = self.board[action[0]][action[1]]
-        view = 0
-        for step in [[0, 1], [1, 0], [1, -1], [1, 1]]:
+    def __reward_function(self, action, pos):
+        tokenizer = np.array([1, 4, 16]) # tokenizes the elements " ", "X", and "O" into numerical forms
+        parser = { 13: 3, 16: 13, 49: -3, 64: -13 } # converts the tokens into rewards throughout the board
+        action = [action, pos]
+        view = player = tokenizer[self.board[action[0]][action[1]]]
+        
+        self.reward = 0
+        for step in [[0, 1], [1, -1], [1, 0], [1, 1]]:
             stack = deque()
             for sign in [-1, 1]:
-                index = action.copy()
+                index = action
                 limit = 3
-                while (limit := limit - 1) >= 0 and 0 <= index[0] < 6 and 0 <= index[1] < 7:
+                while (limit := limit - 1) >= 0 and (index := [index[0] + sign * step[0], index[1] + sign * step[1]]) and 0 <= index[0] < 7 and 0 <= index[1] < 6:
                     if sign == -1:
-                        stack.append(tokenizer[self.board[index[0]][index[1]]])
-                    else:
                         stack.appendleft(tokenizer[self.board[index[0]][index[1]]])
-                        if len(stack) > 4:
-                            view += stack[0] - stack.pop()
-                            if view == 12 or view == 36:
+                        view += stack[-1]
+                    else:
+                        stack.append(tokenizer[self.board[index[0]][index[1]]])
+                        view += stack[-1]
+                        if len(stack) == 4:
+                            view -= stack.popleft()
+                            if view == 16 or view == 64:
                                 self.descendants = {}
                                 self.reward = parser[view]
                                 return
-                            self.reward += parser.get(view, 0) - parser.get(view + 1 - player, 0)
-                    index = [index[0] + sign * step[0], index[1] + sign * step[1]]
+                            self.reward += parser.get(view, 0) - parser.get(view - player + 1, 0)
