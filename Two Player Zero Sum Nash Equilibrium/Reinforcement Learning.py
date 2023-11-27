@@ -43,18 +43,14 @@ def Conclude():
         BestScore = [gamma, test_stats[pi][1]]
         QTable = dict()
         queue = deque([state])
-        isAgentXTurn = deque([True])
-
         while len(queue) > 0:
             item = queue.popleft()
-            lst = [-100_000 if isAgentXTurn[0] else 100_000] * len(item.board)
+            lst = [100_000] * len(item.board)
             for action, (trace, value) in item.descendants.items():
                 if trace:
                     queue.append(trace)
                     lst[action] = value
-                    isAgentXTurn.append(not isAgentXTurn[0])
             QTable[repr(item)] = repr(lst)
-            isAgentXTurn.popleft()
 
         JSON = dict(zip(QTable.keys(), QTable.values())) # works for jagged arrays. includes commas
         json.dump(JSON, open('agent.json', 'w'), indent = 4)
@@ -112,7 +108,6 @@ def evaluate_the_policy():
 
     return history
 
-# fix this
 # improves the QTable from the history of an episode and logs the result; uses a geometric backtrack
 def improve_the_policy(history):
     global CurrScore, state
@@ -128,8 +123,6 @@ def improve_the_policy(history):
         trace.descendants[action][1] = value_past + alpha * (value_new - value_past) if trace.descendants[action][0] == None else value_new
     state = trace
 
-# fix this
-# expand the big brain prowess of this function
 def Test():
     print("Test")
     QTable = json.load(open('The One.json', 'r'))        
@@ -138,10 +131,19 @@ def Test():
         isAgentX = AgentTurn = round(random.random())
         while len(actions := list(state.descendants.keys())):
             print('\n' + str(state))
-            values = json.loads(QTable[repr(state)])
             if AgentTurn:
-                if sum([elem != abs(100_000) for elem in values]):
-                    action = np.argmax(values) if isAgentX else np.argmin(values)
+                tree = deque([[]] * (2 * steps + 2))
+                tree[0].append(state)
+                while len(tree) > 1:
+                    for item in tree[0]:
+                        values = json.loads(QTable[repr(item)])
+                        for action, value in enumerate(values):
+                            trace = item.move(action, np.count_nonzero(item.board) % 2 + 1)
+                            item.descendants[action] = [trace, value]
+                            tree[1].append(trace)
+                    tree.popleft()
+                if len(item.descendants):
+                    action = (self_agent_action(state, 2 * steps) if isAgentX else other_agent_action(state, 2 * steps))[0]
                 else:
                     print("Unknown scenario")
                     action = actions[random.randrange(0, len(actions))]
@@ -160,16 +162,16 @@ steps = 1 # prediction steps. int for how many moves in the future the model con
 episodes = 5_000 # training time. model spends more time learning at higher episodes and spends less time training at lower episodes
 epochs = 1_000 # evolutionary time. how many models and time spent exploring those models
 gamma = 0.5 # decay rate. model considers future actions more at higher gamma and considers future actions less at lower gamma
-state = Connect4()
 test_stats = [[gamma, 1]]
 
-open('The One.json', 'w').write(open('agent.json').read())
-Test()
+# open('The One.json', 'w').write(open('agent.json').read())
+# Test()
 open('log.txt', 'w').close()
 
 BestScore = [0, 0]
 log(f"starting program at {datetime.datetime.now()}")
 for epoch_count in range(epochs):
+    state = Connect4()
     # Experiment()
     CurrScore = np.zeros([3])
     episode_count = 0
