@@ -65,9 +65,9 @@ def self_agent_action(state, _steps):
         return max(state.descendants.values(), key = lambda k: (k[1] if k[0] != None else -100_000))
     
     max_value_action = None
-    for action, (child, junk) in state.descendants.items():
+    for action, (child, child_value) in state.descendants.items():
         if child:
-            value = other_agent_action(child, _steps - 1)[1] if child.descendants else child.reward
+            value = other_agent_action(child, _steps - 1)[1] if child.descendants else child_value
             if not max_value_action or value > max_value_action[1]:
                 max_value_action = (action, value)
     return max_value_action
@@ -78,9 +78,9 @@ def other_agent_action(state, _steps):
         return min(state.descendants.values(), key = lambda k: (k[1] if k[0] != None else 100_000))
     
     min_value_action = None
-    for action, (child, junk) in state.descendants.items():
+    for action, (child, child_value) in state.descendants.items():
         if child:
-            value = self_agent_action(child, _steps - 1)[1] if child.descendants else child.reward
+            value = self_agent_action(child, _steps - 1)[1] if child.descendants else child_value
             if not min_value_action or value < min_value_action[1]:
                 min_value_action = (action, value)
     return min_value_action
