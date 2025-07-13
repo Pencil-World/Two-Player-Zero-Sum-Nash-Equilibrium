@@ -21,7 +21,7 @@ def play_game(QTable):
         if player == user:
             print('\n' + str(state))
             action = None
-            while action not in state.all_actions:
+            while action not in state.all_valid_actions:
                 action = int(input("Input move: "))
         else:
           next_states = QTable.get(state.symmetry_reduction(), [None])[0]

@@ -11,11 +11,9 @@ class TicTacToe():
     table = [" ", "X", "O"]
     directions = np.array([[0, 1, 2], [0, 3, 6], [0, 2, 4], [0, 4, 8]]) # 4 different checks: horizontal, vertical, top right lower left, top left lower right
     
-    def __init__(self, other = None, move = None):
+    def __init__(self, other = None):
         if isinstance(other, TicTacToe):
             self.board = other.board.copy()
-            if move is not None:
-                self.board[move[0]] = move[1]
         elif isinstance(other, int):
             self.board = np.empty([9], dtype = np.int8)
             for i in range(9):
@@ -23,7 +21,8 @@ class TicTacToe():
                 other //= 3
         else:
             self.board = np.full([9], 0, dtype = np.int8)
-        self.actions = None
+
+        self.state_map = {}
         self.hash = None
 
     def __repr__(self):
@@ -36,30 +35,37 @@ class TicTacToe():
         return str(board)
     
     @property
-    def all_actions(self):
+    def all_valid_actions(self):
         return [i for i, elem in enumerate(self.board) if elem == 0]
 
-    # super convoluted; do not change
+    """This method returns all unique actions by simulating each valid move, reducing symmetric board states, and storing only distinct outcomes in state_map. It avoids redundant exploration by hashing reduced boards and skipping duplicates. The result is a set of actions that lead to unique board configurations."""
     @property
-    def get_actions(self):
-        if self.actions is None:
-            state_map = set()
-            self.actions = []
-            for action in self.all_actions:
-                board = TicTacToe(self, (action, 1))
-                old_hash, new_hash = hash(board), board.symmetry_reduction()
-                if new_hash not in state_map:
-                    state_map.add(old_hash)
-                    self.actions.append(action)
-        return self.actions
+    def get_actions(self, player):
+        if not self.state_map:
+            next_states = set()
+            for action in self.all_valid_actions:
+                board = TicTacToe(self)
+                board.move(action, player)
+                board.symmetry_reduction()
+                if hash(board) not in next_states:
+                    next_states.add(hash(board))
+                    self.state_map[action] = board
+        return self.state_map.keys()
 
-    def move(self, action, player):
-        self.board[action] = player
-        self.actions = None
-        self.hash = None
-        return self.__evaluate(action, player)
+    """This method either applies a move directly to the board if a player is given, or loads a precomputed symmetric board from state_map if not. It resets the cached hash in both cases. When loading from state_map, it also evaluates the resulting game state."""
+    def move(self, action, player = None):
+        self.state_map = {}
+        if player:
+            self.board[action] = player
+            self.hash = None
+        else:
+            self.board = self.state_map[action].board
+            self.hash = self.state_map[action].hash
+            return self.__evaluate(action)
 
-    def __evaluate(self, action, player):
+    """This method determines the game status after a move by checking if the current player formed a line of three. It calculates possible winning lines based on the move's position and compares the board values. If no win is found and no actions remain, it returns a tie; otherwise, the game continues."""
+    def __evaluate(self, action):
+        player = self.board[action]
         bases = [(action // 3) * 3, action % 3, 2 if action in [2, 4, 6] else None, 0 if action in [0, 4, 8] else None]
         for base, direction in zip(bases, TicTacToe.directions):
             if base is not None:
@@ -70,14 +76,16 @@ class TicTacToe():
             return GameStatus.TIE
         return GameStatus.ONGOING
 
+    """This __hash__ method encodes the Tic-Tac-Toe board as a unique base-3 integer by treating each cell as a digit. It caches the result in self.hash to avoid redundant computation. This allows fast comparisons and dictionary lookups for board states."""
     def __hash__(self):
         if self.hash is None:
             self.hash = sum(int(cell) * (3 ** i) for i, cell in enumerate(self.board))
         return self.hash
 
+    """This function finds the canonical (lowest hash) representation of a Tic-Tac-Toe board by applying all 7 geometric symmetries (flips and rotations). It tests each transformed version of the board, keeps the one with the smallest hash, and sets the current board to that configuration. This helps reduce duplicate symmetric states in reinforcement learning or search."""
     def symmetry_reduction(self):
         board_copy = self.board.copy()
-        lowest_hash = hash(self)
+        lowest_hash, best_board = hash(self), board_copy
         #                 horizontal flip,       vertical flip,         rotate ccw,            rotate cw,             rotate 180,              diagonal flip,       anti-diagonal flip
         for transform in [lambda r, c: (r, 2-c), lambda r, c: (2-r, c), lambda r, c: (c, 2-r), lambda r, c: (2-c, r), lambda r, c: (2-r, 2-c), lambda r, c: (c, r), lambda r, c: (2-c, 2-r)]:
             i = 0
@@ -88,9 +96,8 @@ class TicTacToe():
                     self.board[new_i] = board_copy[i]
                     i += 1
 
-            if hash(self) < lowest_hash:
-                lowest_hash = hash(self)
             self.hash = None
+            if hash(self) < lowest_hash:
+                lowest_hash, best_board = hash(self), self.board.copy()
 
-        self.board = board_copy
-        return lowest_hash
+        self.hash, self.board = lowest_hash, best_board
