@@ -13,12 +13,14 @@ td_steps = 4
 learning_rate = 0.01
 discount_factor = 0.9
 QTable = dict() # hashed state: [next states, next state values'] or [None, value]
+verbose = False
 
 def generate_episode(epsilon, discover = False):
     state = TicTacToe()
     history = []
     player = 1
-    print("new game")
+    if verbose:
+        print("new game")
 
     game_status = GameStatus.ONGOING
     while game_status == GameStatus.ONGOING:
@@ -33,9 +35,10 @@ def generate_episode(epsilon, discover = False):
             action = best_action(QTable, next_states, player)
 
         history.append((hash(state), action))
-        game_status = state.move(action, player)
+        game_status = state.move(action, player, True)
         player = 2 if player == 1 else 1
-        print(str(state) + '\n')
+        if verbose:
+            print(str(state) + '\n')
     
     history.append(hash(state))
     return history, game_status

@@ -56,18 +56,16 @@ class TicTacToe():
     def move(self, action, player, apply_symmetry_reduction = False):
         state_map, self.state_map = self.state_map, {}
         self.game_status = None
-        if apply_symmetry_reduction:
-            if state_map:
-                self.board = state_map[action].board
-                self.hash = state_map[action].hash
-                self.game_status = state_map[action].game_status
-            else:
-                self.board[action] = player
-                self.__evaluate(action)
-                self.symmetry_reduction()
+        if apply_symmetry_reduction and state_map:
+            self.board = state_map[action].board
+            self.hash = state_map[action].hash
+            self.game_status = state_map[action].game_status
         else:
             self.board[action] = player
             self.hash = None
+            if apply_symmetry_reduction:
+                self.__evaluate(action)
+                self.symmetry_reduction()
         return self.__evaluate(action)
 
     # idk how this works; convoluted as shit; don't fuck with it
