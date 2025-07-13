@@ -88,7 +88,7 @@ if __name__ == '__main__':
     for episode_num in range(mc_episodes):
         history, game_status = generate_episode(round(np.interp(episode_num, [0, mc_episodes - 1], mc_epsilon), 2))
         mc_qtable_update(history, game_status)
-
+ 
     # PHASE 2: Temporal Difference Learning
 
     for episode_num in range(td_episodes):
