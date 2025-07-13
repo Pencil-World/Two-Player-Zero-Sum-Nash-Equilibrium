@@ -1,2 +1,0 @@
-starting program at 2023-11-26 20:09:29.516341
-0.500 high score: 0.500		gamma: 0.500 win rate: 0.663 tie rate: 0.059 loss rate: 0.279	time: 2023-11-26 20:10:50.452936
