@@ -12,14 +12,6 @@ def best_action(QTable, next_states, player):
                 action, best_value = i, value
     return action
 
-discovery_episodes, mc_episodes, td_episodes, vi_episodes = 500, 500, 500, 5
-mc_epsilon, td_epsilon = [1, 0.5], [0.5, 0]
-# mc_epsilon, td_epsilon = [1, 0], [0.75, 0.25]
-td_steps = 4
-learning_rate = 0.01
-discount_factor = 0.9
-QTable = dict() # hashed state: [next states, next state values'] or [None, value]
-
 def upload_data(discovery_episodes=None, mc_episodes=None, td_episodes=None, mc_epsilon=None, td_epsilon=None, td_steps=None, learning_rate=None, discount_factor=None, QTable=None):
     for key, val in QTable.items():
         QTable[key][1] = val[1].tolist()
@@ -36,3 +28,6 @@ def download_data():
         agent_data["QTable"] = QTable
         return agent_data
     
+def log(text):
+    with open("log.txt", "append or whatever") as f:
+        agent_data = json.load(f)

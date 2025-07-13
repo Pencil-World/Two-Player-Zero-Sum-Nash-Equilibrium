@@ -2,19 +2,19 @@ from model_manager import *
 from TicTacToe import TicTacToe, GameStatus
 import random
 
-def symmetry_expansion(state, action, player):
-    lowest_hash = state.symmetry_reduction() + player * (3 ** action)
-    actions = [[0, 2, 6, 8], [1, 3, 5, 7]][action % 2]
-    for action in actions:
-        board = TicTacToe(state, (action, player))
+def symmetry_expansion(state, old_action, player):
+    lowest_hash = state.symmetry_reduction() + player * (3 ** old_action)
+    actions = [[0, 2, 6, 8], [1, 3, 5, 7]][old_action % 2]
+    for new_action in actions:
+        board = TicTacToe(state)
+        board.move(new_action, player)
         if lowest_hash == hash(board):
-            return action
+            return new_action
 
 def play_game(QTable):
     user = int(input("Enter which player you want to play as (1 for X, 2 for O): "))
     state = TicTacToe()
     player = 1
-    print("new game")
 
     game_status = GameStatus.ONGOING
     while game_status == GameStatus.ONGOING:
