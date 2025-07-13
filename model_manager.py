@@ -13,13 +13,16 @@ def best_action(QTable, next_states, player):
     return action
 
 def upload_data(discovery_episodes=None, mc_episodes=None, td_episodes=None, mc_epsilon=None, td_epsilon=None, td_steps=None, learning_rate=None, discount_factor=None, QTable=None):
+    print("upload data process starting")
     for key, val in QTable.items():
         QTable[key][1] = val[1].tolist()
     agent_data = {"discovery_episodes": discovery_episodes, "mc_episodes": mc_episodes, "td_episodes": td_episodes, "mc_epsilon": mc_epsilon, "td_epsilon": td_epsilon, "td_steps": td_steps, "learning_rate": learning_rate, "discount_factor": discount_factor, "QTable": QTable}
     with open("agent.json", "w") as f:
         json.dump(agent_data, f, indent=2)
+    print("upload data process ending")
 
 def download_data():
+    print("download data process starting")
     with open("agent.json", "r") as f:
         agent_data = json.load(f)
         QTable = {}
@@ -27,7 +30,8 @@ def download_data():
             QTable[int(key)] = [val[0], np.array(val[1])]
         agent_data["QTable"] = QTable
         return agent_data
-    
+    print("download data process ending")
+
 def log(text):
     with open("log.txt", "append or whatever") as f:
         agent_data = json.load(f)

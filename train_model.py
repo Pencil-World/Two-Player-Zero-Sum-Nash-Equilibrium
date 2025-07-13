@@ -6,7 +6,7 @@ from model_manager import *
 # from tensorflow import keras
 
 # Training is split into 4 phases: monte carlo, temporal difference, value iteration, and deep q learning
-discovery_episodes, mc_episodes, td_episodes, vi_episodes = 10, 0, 0, 5
+discovery_episodes, mc_episodes, td_episodes, vi_episodes = 1000, 1000, 1000, 5
 mc_epsilon, td_epsilon = [1, 0.5], [0.5, 0]
 # mc_epsilon, td_epsilon = [1, 0], [0.75, 0.25]
 td_steps = 4
@@ -33,7 +33,7 @@ def generate_episode(epsilon, discover = False):
             action = best_action(QTable, next_states, player)
 
         history.append((hash(state), action))
-        game_status = state.move(action)
+        game_status = state.move(action, player)
         player = 2 if player == 1 else 1
         print(str(state) + '\n')
     
@@ -58,7 +58,7 @@ def td_lambda_qtable_update(history, game_status, n_step):
         sign = -sign
         if n_step:
             values.append(temp * (discount_factor ** n_step))
-            if len(values) < n_step:
+            if len(values) > n_step:
                 value = values[-n_step]
                 continue
         value *= discount_factor
@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
     for episode_num in range(discovery_episodes):
         history, game_status = generate_episode(1, True)
-        td_qtable_update(history, game_status, 2)
+        td_qtable_update(history, game_status, 2) # work on this more. remember, keep it variable
 
     # PHASE 1: Monte Carlo Learning
 
@@ -93,5 +93,9 @@ if __name__ == '__main__':
         td_qtable_update(history, game_status, td_steps)
 
     # PHASE 3: Value Iteration Learning
+
+    # for episode_num in range(vi_episodes):
+    #     history, game_status = generate_episode(round(np.interp(episode_num, [0, td_episodes - 1], td_epsilon), 2))
+    #     td_qtable_update(history, game_status, td_steps)
 
     upload_data(QTable=QTable, discovery_episodes=discovery_episodes, mc_episodes=mc_episodes, td_episodes=td_episodes, mc_epsilon=mc_epsilon, td_epsilon=td_epsilon, td_steps=td_steps, learning_rate=learning_rate, discount_factor=discount_factor)

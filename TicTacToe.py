@@ -24,6 +24,7 @@ class TicTacToe():
 
         self.state_map = {}
         self.hash = None
+        self.game_status = None
 
     def __repr__(self):
         return str(self.board)
@@ -52,23 +53,28 @@ class TicTacToe():
         return list(self.state_map.keys())
 
     """This method either applies a move directly to the board if a player is given, or loads a precomputed symmetric board from state_map if not. It resets the cached hash in both cases. When loading from state_map, it also evaluates the resulting game state."""
-    def move(self, action, player = None):
+    def move(self, action, player, apply_symmetry_reduction = False):
         state_map, self.state_map = self.state_map, {}
-        if player:
+        self.game_status = None
+        if apply_symmetry_reduction:
+            if state_map:
+                self.board = state_map[action].board
+                self.hash = state_map[action].hash
+                self.game_status = state_map[action].game_status
+            else:
+                self.board[action] = player
+                self.__evaluate(action)
+                self.symmetry_reduction()
+        else:
             self.board[action] = player
             self.hash = None
-            return self.__evaluate(action)
-        else:
-            self.board = state_map[action].board
-            self.hash = state_map[action].hash
-            self.game_status = state_map[action].game_status
-            return self.__evaluate(action, True)
+        return self.__evaluate(action)
 
     # idk how this works; convoluted as shit; don't fuck with it
     """This method determines the game status after a move by checking if the current player formed a line of three. It calculates possible winning lines based on the move's position and compares the board values. If no win is found and no actions remain, it returns a tie; otherwise, the game continues."""
-    def __evaluate(self, action, is_symmetry_converted = False):
+    def __evaluate(self, action, is_symmetry_reduced = False):
         def foo():
-            if is_symmetry_converted and action != 4:
+            if is_symmetry_reduced and action != 4:
                 bases = [3, 1, 2, 0, 0, 6, 0, 2]
                 directions = TicTacToe.directions[[0, 1, 2, 3, 0, 0, 1, 1]]
                 if action % 2:
