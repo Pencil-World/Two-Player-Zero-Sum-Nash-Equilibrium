@@ -30,7 +30,9 @@ def upload_data(discovery_episodes=None, mc_episodes=None, td_episodes=None, mc_
 def download_data():
     with open("agent.json", "r") as f:
         agent_data = json.load(f)
-        QTable = agent_data["QTable"]
-        for key, val in QTable.items():
-            QTable[key][1] = np.array(val[1])
+        QTable = {}
+        for key, val in agent_data["QTable"].items():
+            QTable[int(key)] = [val[0], np.array(val[1])]
+        agent_data["QTable"] = QTable
         return agent_data
+    

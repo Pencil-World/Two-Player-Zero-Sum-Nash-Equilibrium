@@ -4,7 +4,11 @@ import random
 
 def symmetry_expansion(state, action, player):
     lowest_hash = state.symmetry_reduction() + player * (3 ** action)
-    pass
+    actions = [[0, 2, 6, 8], [1, 3, 5, 7]][action % 2]
+    for action in actions:
+        board = TicTacToe(state, (action, player))
+        if lowest_hash == hash(board):
+            return action
 
 def play_game(QTable):
     user = int(input("Enter which player you want to play as (1 for X, 2 for O): "))
@@ -15,8 +19,10 @@ def play_game(QTable):
     game_status = GameStatus.ONGOING
     while game_status == GameStatus.ONGOING:
         if player == user:
-            print('\n' + str(state))          
-            action = int(input("Input move: "))
+            print('\n' + str(state))
+            action = None
+            while action not in state.all_actions:
+                action = int(input("Input move: "))
         else:
           next_states = QTable.get(state.symmetry_reduction(), [None])[0]
           if not next_states:
@@ -24,17 +30,13 @@ def play_game(QTable):
               print("Unknown board state")
           else:
               action = best_action(QTable, next_states, player)
-              lowest_hash += action ** 3# blah blah
               if action != 4:
-                  symmetry_expansion = [[0, 2, 6, 8], [1, 3, 5, 7]][action % 2]
-                  state_map = {}
-                  for _action in symmetry_expansion:
-                      blah = TicTacToe(state, )
-                      action = _action
+                  action = symmetry_expansion(state, action, player)
 
         game_status = state.move(action, player)
         player = 2 if player == 1 else 1
 
+    print('\n' + str(state))          
     match game_status:
         case GameStatus.X_WINS:
             print("X WINS")

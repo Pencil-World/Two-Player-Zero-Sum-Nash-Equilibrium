@@ -34,6 +34,10 @@ class TicTacToe():
         for i, elem in enumerate(self.board):
             board[i // 3][i % 3] = TicTacToe.table[elem]
         return str(board)
+    
+    @property
+    def all_actions(self):
+        return [i for i, elem in enumerate(self.board) if elem == 0]
 
     # super convoluted; do not change
     @property
@@ -41,7 +45,7 @@ class TicTacToe():
         if self.actions is None:
             state_map = set()
             self.actions = []
-            for action in [i for i, elem in enumerate(self.board) if elem == 0]:
+            for action in self.all_actions:
                 board = TicTacToe(self, (action, 1))
                 old_hash, new_hash = hash(board), board.symmetry_reduction()
                 if new_hash not in state_map:
