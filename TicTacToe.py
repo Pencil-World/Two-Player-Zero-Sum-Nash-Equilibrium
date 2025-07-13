@@ -24,6 +24,7 @@ class TicTacToe():
 
         self.state_map = {}
         self.hash = None
+        self.reward = None
 
     def __repr__(self):
         return str(self.board)
@@ -39,7 +40,6 @@ class TicTacToe():
         return [i for i, elem in enumerate(self.board) if elem == 0]
 
     """This method returns all unique actions by simulating each valid move, reducing symmetric board states, and storing only distinct outcomes in state_map. It avoids redundant exploration by hashing reduced boards and skipping duplicates. The result is a set of actions that lead to unique board configurations."""
-    @property
     def get_actions(self, player):
         if not self.state_map:
             next_states = set()
@@ -50,31 +50,47 @@ class TicTacToe():
                 if hash(board) not in next_states:
                     next_states.add(hash(board))
                     self.state_map[action] = board
-        return self.state_map.keys()
+        return list(self.state_map.keys())
 
     """This method either applies a move directly to the board if a player is given, or loads a precomputed symmetric board from state_map if not. It resets the cached hash in both cases. When loading from state_map, it also evaluates the resulting game state."""
     def move(self, action, player = None):
-        self.state_map = {}
         if player:
             self.board[action] = player
             self.hash = None
+            self.__evaluate(action)
         else:
+            # state.symmetry_reduction() is implied here
             self.board = self.state_map[action].board
             self.hash = self.state_map[action].hash
-            return self.__evaluate(action)
+            self.reward = self.state_map[action].reward
+            return self.reward#rename reward
+        self.state_map = {}
 
     """This method determines the game status after a move by checking if the current player formed a line of three. It calculates possible winning lines based on the move's position and compares the board values. If no win is found and no actions remain, it returns a tie; otherwise, the game continues."""
-    def __evaluate(self, action):
-        player = self.board[action]
-        bases = [(action // 3) * 3, action % 3, 2 if action in [2, 4, 6] else None, 0 if action in [0, 4, 8] else None]
-        for base, direction in zip(bases, TicTacToe.directions):
-            if base is not None:
+    def __evaluate(self, action = None):
+        if action is None:
+            for (coord, change) in zip([0, 0, 0, 1, 2, 2, 3, 6], [1, 3, 4, 3, 2, 3, 1, 1]):
                 temp = direction + base
-                if self.board[temp[0]] == self.board[temp[1]] == self.board[temp[2]]:
-                    return GameStatus.X_WINS if player == 1 else GameStatus.O_WINS
-        if self.get_actions == []:
+                if 0 != self.board[coord] == self.board[coord + change] == self.board[coord + change + change]:
+                    return GameStatus.X_WINS if self.board[coord] == 1 else GameStatus.O_WINS
+        else:
+            player = self.board[action]
+            bases = [(action // 3) * 3, action % 3, 2 if action in [2, 4, 6] else None, 0 if action in [0, 4, 8] else None]
+            for base, direction in zip(bases, TicTacToe.directions):
+                if base is not None:
+                    temp = direction + base
+                    if self.board[temp[0]] == self.board[temp[1]] == self.board[temp[2]]:
+                        return GameStatus.X_WINS if player == 1 else GameStatus.O_WINS
+                    
+        if self.all_valid_actions == []:
             return GameStatus.TIE
         return GameStatus.ONGOING
+    
+    @property
+    def reward(self):
+        if not self.reward:
+            self.__evaluate()
+        return self.reward
 
     """This __hash__ method encodes the Tic-Tac-Toe board as a unique base-3 integer by treating each cell as a digit. It caches the result in self.hash to avoid redundant computation. This allows fast comparisons and dictionary lookups for board states."""
     def __hash__(self):

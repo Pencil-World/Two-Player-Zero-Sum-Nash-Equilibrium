@@ -6,7 +6,7 @@ from model_manager import *
 # from tensorflow import keras
 
 # Training is split into 4 phases: monte carlo, temporal difference, value iteration, and deep q learning
-discovery_episodes, mc_episodes, td_episodes, vi_episodes = 500, 500, 500, 5
+discovery_episodes, mc_episodes, td_episodes, vi_episodes = 10, 0, 0, 5
 mc_epsilon, td_epsilon = [1, 0.5], [0.5, 0]
 # mc_epsilon, td_epsilon = [1, 0], [0.75, 0.25]
 td_steps = 4
@@ -18,13 +18,13 @@ def generate_episode(epsilon, discover = False):
     state = TicTacToe()
     history = []
     player = 1
-    # print("new game")
+    print("new game")
 
     game_status = GameStatus.ONGOING
     while game_status == GameStatus.ONGOING:
         next_states = QTable.get(hash(state), [None])[0]
         if random.random() < epsilon or not next_states:
-            actions = state.get_actions
+            actions = state.get_actions(player)
             if discover and next_states:
                 unexplored_states = [i for i, val in enumerate(next_states) if val == 0]
                 actions = list(set(actions) & set(unexplored_states)) or actions
@@ -33,9 +33,9 @@ def generate_episode(epsilon, discover = False):
             action = best_action(QTable, next_states, player)
 
         history.append((hash(state), action))
-        game_status = state.move(action, player)
+        game_status = state.move(action)
         player = 2 if player == 1 else 1
-        # print(str(state) + '\n')
+        print(str(state) + '\n')
     
     history.append(hash(state))
     return history, game_status
