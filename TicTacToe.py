@@ -24,7 +24,6 @@ class TicTacToe():
 
         self.state_map = {}
         self.hash = None
-        self.reward = None
 
     def __repr__(self):
         return str(self.board)
@@ -54,44 +53,39 @@ class TicTacToe():
 
     """This method either applies a move directly to the board if a player is given, or loads a precomputed symmetric board from state_map if not. It resets the cached hash in both cases. When loading from state_map, it also evaluates the resulting game state."""
     def move(self, action, player = None):
+        state_map, self.state_map = self.state_map, {}
         if player:
             self.board[action] = player
             self.hash = None
-            self.__evaluate(action)
         else:
-            # state.symmetry_reduction() is implied here
-            self.board = self.state_map[action].board
-            self.hash = self.state_map[action].hash
-            self.reward = self.state_map[action].reward
-            return self.reward#rename reward
-        self.state_map = {}
+            self.board = state_map[action].board
+            self.hash = state_map[action].hash
+            return self.__evaluate(action, True)
 
+    # idk how this works; convoluted as shit; don't fuck with it
     """This method determines the game status after a move by checking if the current player formed a line of three. It calculates possible winning lines based on the move's position and compares the board values. If no win is found and no actions remain, it returns a tie; otherwise, the game continues."""
-    def __evaluate(self, action = None):
-        if action is None:
-            for (coord, change) in zip([0, 0, 0, 1, 2, 2, 3, 6], [1, 3, 4, 3, 2, 3, 1, 1]):
-                temp = direction + base
-                if 0 != self.board[coord] == self.board[coord + change] == self.board[coord + change + change]:
-                    return GameStatus.X_WINS if self.board[coord] == 1 else GameStatus.O_WINS
+    def __evaluate(self, action, is_symmetry_converted):
+        if is_symmetry_converted and action != 4:
+            match action % 2:
+                case 0:
+                    bases = [0, 0, 0, 2, 2, 6]
+                    directions = TicTacToe.directions[0, 1, 3, 1, 2, 0]
+                case 1:
+                    bases = [0, 0, 1, 2, 3, 6]
+                    directions = TicTacToe.directions[0, 1, 1, 1, 0, 0]
         else:
-            player = self.board[action]
             bases = [(action // 3) * 3, action % 3, 2 if action in [2, 4, 6] else None, 0 if action in [0, 4, 8] else None]
-            for base, direction in zip(bases, TicTacToe.directions):
-                if base is not None:
-                    temp = direction + base
-                    if self.board[temp[0]] == self.board[temp[1]] == self.board[temp[2]]:
-                        return GameStatus.X_WINS if player == 1 else GameStatus.O_WINS
+            directions = TicTacToe.directions
+        for base, direction in zip(bases, directions):
+            if base is not None:
+                temp = direction + base
+                if 0 != self.board[temp[0]] == self.board[temp[1]] == self.board[temp[2]]:
+                    return GameStatus.X_WINS if self.board[base] == 1 else GameStatus.O_WINS
                     
         if self.all_valid_actions == []:
             return GameStatus.TIE
         return GameStatus.ONGOING
     
-    @property
-    def reward(self):
-        if not self.reward:
-            self.__evaluate()
-        return self.reward
-
     """This __hash__ method encodes the Tic-Tac-Toe board as a unique base-3 integer by treating each cell as a digit. It caches the result in self.hash to avoid redundant computation. This allows fast comparisons and dictionary lookups for board states."""
     def __hash__(self):
         if self.hash is None:
