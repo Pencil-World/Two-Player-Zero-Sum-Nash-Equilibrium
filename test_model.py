@@ -27,7 +27,7 @@ def play_game(QTable):
             board.symmetry_reduction()
             next_states = QTable.get(hash(board), [None])[0]
             if not next_states:
-                action = random.choice(state.all_valid_actions)
+                action = random_action(state, player, False, next_states)
                 print("Unknown board state")
             else:
                 action = best_action(QTable, next_states, player)

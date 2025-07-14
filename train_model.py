@@ -6,33 +6,35 @@ from model_manager import *
 # from tensorflow import keras
 
 # Training is split into 4 phases: monte carlo, temporal difference, value iteration, and deep q learning
-discovery_episodes, mc_episodes, td_episodes, vi_episodes = 1000, 1000, 1000, 5
+discovery_episodes, mc_episodes, td_episodes, vi_episodes = 1000, 1000, 1000, 1000
 mc_epsilon, td_epsilon = [1, 0.5], [0.5, 0]
-# mc_epsilon, td_epsilon = [1, 0], [0.75, 0.25]
 td_steps = 4
 learning_rate = 0.01
 discount_factor = 0.9
-QTable = dict() # hashed state: [next states, next state values'] or [None, value]
+QTable = dict()
 verbose = False
 
-def generate_episode(epsilon, discover = False):
-    state = TicTacToe()
+def generate_episode(epsilon, discover = False, moves = None):
     history = []
+    state = TicTacToe()
     player = 1
     if verbose:
         print("new game")
 
     game_status = GameStatus.ONGOING
     while game_status == GameStatus.ONGOING:
-        next_states = QTable.get(hash(state), [None])[0]
-        if random.random() < epsilon or not next_states:
-            actions = state.get_actions(player)
-            if discover and next_states:
-                unexplored_states = [i for i, val in enumerate(next_states) if val == 0]
-                actions = list(set(actions) & set(unexplored_states)) or actions
-            action = random.choice(actions)
+        if moves:
+            if moves[0] in state.get_actions(player):
+                action = moves[0]
+                moves.pop(0)
+            else:
+                return None, None
         else:
-            action = best_action(QTable, next_states, player)
+            next_states = QTable.get(hash(state), [None])[0]
+            if random.random() < epsilon or not next_states:
+                action = random_action(state, player, discover, next_states)
+            else:
+                action = best_action(QTable, next_states, player)
 
         history.append((hash(state), action))
         game_status = state.move(action, player, True)
@@ -42,6 +44,16 @@ def generate_episode(epsilon, discover = False):
     
     history.append(hash(state))
     return history, game_status
+
+# only for tic tac toe
+def generate_vi_episode(index):
+    history = game_status = None
+    while history is None:
+        moves = [(index // (generate_vi_episode.digit ** i)) % generate_vi_episode.digit for i in range(td_steps)]
+        history, game_status = generate_episode(0.85, False, moves)
+        index = (index + 1) % (generate_vi_episode.digit ** td_steps)
+    return index, history, game_status
+generate_vi_episode.digit = len(TicTacToe().all_valid_actions)
 
 # n_step is None or 0 means using monte carlo
 def td_lambda_qtable_update(history, game_status, n_step):
@@ -66,9 +78,6 @@ def td_lambda_qtable_update(history, game_status, n_step):
                 continue
         value *= discount_factor
 
-def vi_qtable_update():
-    pass
-
 def mc_qtable_update(history, game_status):
     td_lambda_qtable_update(history, game_status, None)
 
@@ -79,26 +88,32 @@ if __name__ == '__main__':
 
     # PHASE 1: Discovery
 
+    print("START PHASE 1")
     for episode_num in range(discovery_episodes):
         history, game_status = generate_episode(1, True)
-        td_qtable_update(history, game_status, 2) # work on this more. remember, keep it variable
+        n_steps = round(np.interp(episode_num, [0, discovery_episodes - 1], [9, 1]))
+        td_qtable_update(history, game_status, n_steps)
 
     # PHASE 1: Monte Carlo Learning
 
+    print("START PHASE 2")
     for episode_num in range(mc_episodes):
         history, game_status = generate_episode(round(np.interp(episode_num, [0, mc_episodes - 1], mc_epsilon), 2))
         mc_qtable_update(history, game_status)
  
     # PHASE 2: Temporal Difference Learning
 
+    print("START PHASE 3")
     for episode_num in range(td_episodes):
         history, game_status = generate_episode(round(np.interp(episode_num, [0, td_episodes - 1], td_epsilon), 2))
         td_qtable_update(history, game_status, td_steps)
 
     # PHASE 3: Value Iteration Learning
 
-    # for episode_num in range(vi_episodes):
-    #     history, game_status = generate_episode(round(np.interp(episode_num, [0, td_episodes - 1], td_epsilon), 2))
-    #     td_qtable_update(history, game_status, td_steps)
+    print("START PHASE 4")
+    index = 0
+    for episode_num in range(vi_episodes):
+        index, history, game_status = generate_vi_episode(index)
+        mc_qtable_update(history, game_status)
 
     upload_data(QTable=QTable, discovery_episodes=discovery_episodes, mc_episodes=mc_episodes, td_episodes=td_episodes, mc_epsilon=mc_epsilon, td_epsilon=td_epsilon, td_steps=td_steps, learning_rate=learning_rate, discount_factor=discount_factor)

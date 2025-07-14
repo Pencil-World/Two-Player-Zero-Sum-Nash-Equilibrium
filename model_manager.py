@@ -1,5 +1,6 @@
 import json
 import numpy as np
+import random
 
 def best_action(QTable, next_states, player):
     action = None
@@ -11,6 +12,13 @@ def best_action(QTable, next_states, player):
             if value > best_value:
                 action, best_value = i, value
     return action
+
+def random_action(state, player, discover, next_states):
+    actions = state.get_actions(player)
+    if discover and next_states:
+        unexplored_states = [i for i, val in enumerate(next_states) if val == 0]
+        actions = list(set(actions) & set(unexplored_states)) or actions
+    return random.choice(actions)
 
 def upload_data(discovery_episodes=None, mc_episodes=None, td_episodes=None, mc_epsilon=None, td_epsilon=None, td_steps=None, learning_rate=None, discount_factor=None, QTable=None):
     print("upload data process starting")
